@@ -11,8 +11,8 @@ import { RecentActivityTable } from '@/component/recent-activity-table';
 export const Dashboard = () => {
   const Stats = [
     {
-      title: 'remaining units',
-      value: '12.4 units',
+      title: 'remaining kg',
+      value: '12.4 kg',
       below: (
         <Typography variant='subtitle2' fontWeight='bold' color='error'>
           Estimated ~2 days remaining
@@ -40,8 +40,8 @@ export const Dashboard = () => {
       ),
     },
     {
-      title: 'units used today',
-      value: '3.2 units',
+      title: 'kg used today',
+      value: '3.2 kg',
       below: 'View Usage',
       leftComponent: (
         <Box
