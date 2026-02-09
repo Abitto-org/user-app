@@ -1,9 +1,9 @@
-import { DashboardLayout } from '@/layouts/dashboard';
 import { DashboardHeader } from '@/shared/dashboard-header';
 
 import onIcon from '@/assets/icons/on-icon.svg';
 import flowIcon from '@/assets/icons/flow-icon.svg';
-import { Typography, Box } from '@mui/material';
+import upIcon from '@/assets/icons/up-icon.svg';
+import { Typography, Box, Button } from '@mui/material';
 import { RecentActivity } from '@/component/recent-activity';
 import { WeeklyUsage } from '@/component/weekly-usage';
 import { RecentActivityTable } from '@/component/recent-activity-table';
@@ -70,13 +70,15 @@ export const Dashboard = () => {
       below: 'view wallet',
     },
   ];
+
   return (
-    <DashboardLayout>
+    <>
       <DashboardHeader />
       <Box
         display='flex'
-        alignItems='center'
-        gap='8px'
+        flexDirection={{ xs: 'column', md: 'row' }}
+        alignItems={{ xs: 'stretch', md: 'center' }}
+        gap={1}
         justifyContent='space-between'
       >
         {Stats.map((item) => (
@@ -115,15 +117,30 @@ export const Dashboard = () => {
         ))}
       </Box>
 
-      <Box display='flex' mt={2} width='100%' gap={2} mb={4} alignItems='stretch'>
+      <Box
+        display='flex'
+        flexDirection={{ xs: 'column', md: 'row' }}
+        mt={2}
+        width='100%'
+        gap={2}
+        mb={4}
+        alignItems='stretch'
+      >
         <Box flex={1} display='flex'>
           <WeeklyUsage />
         </Box>
-        <Box width='40%' flexShrink={0} display='flex'>
+        <Box width={{ xs: '100%', md: '40%' }} flexShrink={0} display='flex'>
           <RecentActivity />
         </Box>
       </Box>
-      <RecentActivityTable/>
-    </DashboardLayout>
+      <RecentActivityTable />
+      <Box display='flex' alignItems='center' justifyContent='flex-end' mt={2}>
+        <Button sx={{
+          alignItems: 'flex-end',
+        }} variant='contained' endIcon={<img src={upIcon} />}>
+          View all transactions
+        </Button>
+      </Box>
+    </>
   );
 };

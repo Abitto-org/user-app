@@ -1,17 +1,34 @@
-import { Avatar, Box, Typography } from '@mui/material';
+import { Avatar, Box, IconButton, Typography } from '@mui/material';
+import { Menu as MenuIcon } from '@mui/icons-material';
 
-export const DashboardProfileHeader = () => {
+interface DashboardProfileHeaderProps {
+  onMenuToggle?: () => void;
+}
+
+export const DashboardProfileHeader = ({
+  onMenuToggle,
+}: DashboardProfileHeaderProps) => {
   return (
     <Box
       display='flex'
       alignItems='center'
-      justifyContent='flex-end'
+      justifyContent='space-between'
       width='100%'
       bgcolor='white'
       p={2}
       position='sticky'
-
+      top={0}
+      zIndex={10}
     >
+      {/* Hamburger — only rendered when onMenuToggle is provided (mobile) */}
+      {onMenuToggle ? (
+        <IconButton onClick={onMenuToggle} edge='start'>
+          <MenuIcon />
+        </IconButton>
+      ) : (
+        <Box />
+      )}
+
       <Box display='flex' alignItems='center' gap={1}>
         <Avatar
           sx={{

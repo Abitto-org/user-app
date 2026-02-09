@@ -7,6 +7,7 @@ import helpIcon from '@/assets/icons/help-icon.svg';
 import logoutIcon from '@/assets/icons/logout-icon.svg';
 
 import { Box, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const sideItems = {
   general: [
@@ -40,6 +41,14 @@ const sideItems = {
 };
 
 export const SideBar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('onboardingCompleted');
+    navigate('/login', { replace: true });
+  };
+
   return (
     <Box borderRight='1px solid #ECECEC' height='100%' p={2}>
       <Box mb={3}>
@@ -105,6 +114,8 @@ export const SideBar = () => {
         gap='12px'
         borderRadius='12px'
         mt={3}
+        onClick={handleLogout}
+        sx={{ cursor: 'pointer', '&:hover': { bgcolor: '#EA00002A' } }}
       >
         <img src={logoutIcon} />
         <Typography variant='subtitle2' color='#EA0000'>
