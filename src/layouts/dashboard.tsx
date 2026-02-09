@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DashboardProfileHeader } from '@/component/dashboard-profile-header';
 import { SideBar } from '@/component/side-bar';
+import { PwaInstallPrompt } from '@/component/pwa-install-prompt';
 import { Box, Drawer, useMediaQuery, useTheme } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 
@@ -53,6 +54,8 @@ export const DashboardLayout = () => {
           <Outlet />
         </Box>
       </Box>
+
+      <PwaInstallPrompt />
     </Box>
   );
 };

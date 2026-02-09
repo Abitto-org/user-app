@@ -224,6 +224,51 @@ interface OnboardingResponse {
   };
 }
 
+// ── Get Profile ──
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  username: string | null;
+  phoneNumber: string | null;
+  avatar: string | null;
+  country: string | null;
+  referralCode: string | null;
+  isActive: boolean;
+  emailVerified: boolean;
+  role: string;
+  gender: string | null;
+  nin: string | null;
+  estateId: string | null;
+  houseNumber: string | null;
+  onboardingCompleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ProfileResponse {
+  status: string;
+  message: string;
+  data: {
+    user: UserProfile;
+  };
+}
+
+export const useGetProfile = () => {
+  return useQuery<UserProfile>({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const { data } = await http.get<ProfileResponse>('/user/profile');
+      return data.data.user;
+    },
+    enabled: !!localStorage.getItem('token'),
+  });
+};
+
+// ── Onboarding ──
+
 export const useOnboarding = () => {
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();

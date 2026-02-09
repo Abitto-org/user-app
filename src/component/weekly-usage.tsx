@@ -92,8 +92,8 @@ export const WeeklyUsage = () => {
         </Stack>
       </Stack>
 
-      <Box width='100%' flex={1} minHeight={250} mt={2}>
-        <ResponsiveContainer width='100%' height='100%'>
+      <Box width='100%' flex={1} height={250} mt={2}>
+        <ResponsiveContainer width='100%' height={250}>
           <AreaChart
             data={data}
             margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
