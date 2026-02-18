@@ -1,67 +1,101 @@
-import {
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Chip,
-  Link,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
+import { Chip, Link } from '@mui/material';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
+import { DataTable, type DataTableColumn } from '@/shared/data-table';
+import { useGetTransactions, type Transaction } from '@/services/transactions';
 
-const rows = [
-  { status: 'successful' },
-  { status: 'failed' },
-  { status: 'successful' },
-  { status: 'pending' },
-  { status: 'successful' },
-  { status: 'successful' },
-];
-
-const statusConfig = {
-  successful: {
+const statusConfig: Record<string, { label: string; bg: string; color: string }> = {
+  SUCCESS: {
     label: 'Successful',
     bg: '#E8F5E9',
     color: '#2E7D32',
   },
-  failed: {
+  FAILED: {
     label: 'Failed',
     bg: '#FDECEA',
     color: '#D32F2F',
   },
-  pending: {
+  PENDING: {
     label: 'Pending',
     bg: '#FFF8E1',
     color: '#F9A825',
   },
 };
 
-const headers = ['Timestamp', 'Type', 'Amount', 'Gas Unit', 'Status', 'Action'] as const;
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'pm' : 'am';
+  const displayHour = hours % 12 || 12;
+  return `${day}-${month}-${year} | ${displayHour}:${minutes}${ampm}`;
+};
 
-const getRowValues = (row: (typeof rows)[number]) => {
-  const status = statusConfig[row.status as keyof typeof statusConfig];
-  return {
-    Timestamp: '20-08-2025 | 8:58am',
-    Type: 'Gas Purchase',
-    Amount: '₦5,000,000.00',
-    'Gas Unit': '24.5',
-    Status: (
-      <Chip
-        label={status.label}
-        sx={{
-          bgcolor: status.bg,
-          color: status.color,
-          fontWeight: 500,
-          borderRadius: '999px',
-          height: 28,
-        }}
-      />
-    ),
-    Action: (
+const formatAmount = (amount: string) => {
+  const value = Number(amount) / 100;
+  return `₦${value.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+};
+
+const formatType = (type: string) => {
+  return type
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
+const columns: DataTableColumn<Transaction>[] = [
+  {
+    key: 'timestamp',
+    header: 'Timestamp',
+    skeletonWidth: 140,
+    render: (row) => formatDate(row.createdAt),
+  },
+  {
+    key: 'type',
+    header: 'Type',
+    skeletonWidth: 100,
+    render: (row) => formatType(row.type),
+  },
+  {
+    key: 'amount',
+    header: 'Amount',
+    bold: true,
+    skeletonWidth: 110,
+    render: (row) => formatAmount(row.amount),
+  },
+  {
+    key: 'gasUnit',
+    header: 'Gas Unit',
+    skeletonWidth: 50,
+    render: (row) => `${row.metadata?.metadata?.kgPurchased} kg`,
+  },
+  {
+    key: 'status',
+    header: 'Status',
+    skeletonWidth: 90,
+    render: (row) => {
+      const config = statusConfig[row.status] ?? statusConfig.PENDING;
+      return (
+        <Chip
+          label={config.label}
+          sx={{
+            bgcolor: config.bg,
+            color: config.color,
+            fontWeight: 500,
+            borderRadius: '999px',
+            height: 28,
+          }}
+        />
+      );
+    },
+  },
+  {
+    key: 'action',
+    header: 'Action',
+    skeletonWidth: 60,
+    render: () => (
       <Link
         href='#'
         underline='none'
@@ -76,116 +110,21 @@ const getRowValues = (row: (typeof rows)[number]) => {
         View <NorthEastIcon sx={{ fontSize: 16 }} />
       </Link>
     ),
-  };
-};
-
-// ── Mobile card view ──
-
-const MobileCards = () => (
-  <Box display='flex' flexDirection='column' gap={2}>
-    {rows.map((row, index) => {
-      const values = getRowValues(row);
-      return (
-        <Box
-          key={index}
-          bgcolor='white'
-          borderRadius={2}
-          border='1px solid #E4E7EC'
-          p={2}
-        >
-          {headers.map((header) => (
-            <Box
-              key={header}
-              display='flex'
-              alignItems='center'
-              justifyContent='space-between'
-              py={1}
-              sx={{
-                '&:not(:last-child)': {
-                  //  borderBottom: '1px solid #F2F2F2',
-                },
-              }}
-            >
-              <Typography variant='body2' color='#888' fontWeight={600}>
-                {header}
-              </Typography>
-              <Typography
-                variant='body2'
-                fontWeight={header === 'Amount' ? 600 : 400}
-                component='div'
-              >
-                {values[header]}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-      );
-    })}
-  </Box>
-);
-
-// ── Desktop table view ──
-
-const DesktopTable = () => (
-  <Box bgcolor='white' borderRadius={2} border='1px solid #E4E7EC' overflow='hidden'>
-    <Table sx={{ overflow: 'hidden !important' }}>
-      <TableHead sx={{ overflow: 'hidden !important' }}>
-        <TableRow sx={{ overflow: 'hidden !important' }}>
-          {headers.map((head, idx) => (
-            <TableCell
-              key={head}
-              sx={{
-                fontWeight: 600,
-                fontSize: 14,
-                color: '#111',
-                borderRight:
-                  idx !== headers.length - 1 ? '1px solid #EAEAEA' : undefined,
-                bgcolor: '#FAFAFA',
-                overflow: 'hidden !important',
-              }}
-            >
-              {head}
-            </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
-
-      <TableBody>
-        {rows.map((row, index) => {
-          const values = getRowValues(row);
-          return (
-            <TableRow key={index}>
-              <TableCell sx={{ borderRight: '1px solid #EAEAEA' }}>
-                {values.Timestamp}
-              </TableCell>
-              <TableCell sx={{ borderRight: '1px solid #EAEAEA' }}>
-                {values.Type}
-              </TableCell>
-              <TableCell
-                sx={{ fontWeight: 600, borderRight: '1px solid #EAEAEA' }}
-              >
-                {values.Amount}
-              </TableCell>
-              <TableCell sx={{ borderRight: '1px solid #EAEAEA' }}>
-                {values['Gas Unit']}
-              </TableCell>
-              <TableCell sx={{ borderRight: '1px solid #EAEAEA' }}>
-                {values.Status}
-              </TableCell>
-              <TableCell>{values.Action}</TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
-  </Box>
-);
-
-// ── Main component ──
+  },
+];
 
 export const RecentActivityTable = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { data, isLoading } = useGetTransactions({ page: 1, limit: 6 });
 
-  return isMobile ? <MobileCards /> : <DesktopTable />;
+
+  return (
+    <DataTable
+      columns={columns}
+      rows={data?.transactions ?? []}
+      loading={isLoading}
+      skeletonRows={6}
+      getRowKey={(row) => row.id}
+      emptyMessage='No transactions yet'
+    />
+  );
 };

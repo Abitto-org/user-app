@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { DashboardHeader } from '@/shared/dashboard-header';
+import { BuyGasDrawer } from '@/component/buy-gas-drawer';
 
 import onIcon from '@/assets/icons/on-icon.svg';
 import flowIcon from '@/assets/icons/flow-icon.svg';
@@ -7,17 +9,17 @@ import { Typography, Box, Button } from '@mui/material';
 import { RecentActivity } from '@/component/recent-activity';
 import { WeeklyUsage } from '@/component/weekly-usage';
 import { RecentActivityTable } from '@/component/recent-activity-table';
+import { useGetProfile } from '@/services/profile';
 
 export const Dashboard = () => {
+  const [buyGasOpen, setBuyGasOpen] = useState(false);
+  const { data } = useGetProfile()
+
+  console.log('Profile data', data)
   const Stats = [
     {
       title: 'remaining kg',
-      value: '12.4 kg',
-      below: (
-        <Typography variant='subtitle2' fontWeight='bold' color='error'>
-          Estimated ~2 days remaining
-        </Typography>
-      ),
+      value: data?.availableGasKg,
       leftComponent: (
         <Box
           display='flex'
@@ -73,7 +75,8 @@ export const Dashboard = () => {
 
   return (
     <>
-      <DashboardHeader />
+      <DashboardHeader onBuyGas={() => setBuyGasOpen(true)} />
+      <BuyGasDrawer open={buyGasOpen} onClose={() => setBuyGasOpen(false)} />
       <Box
         display='flex'
         flexDirection={{ xs: 'column', md: 'row' }}

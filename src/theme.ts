@@ -34,11 +34,15 @@ const theme = createTheme({
       defaultProps: {
         disableElevation: true,
         size: 'medium',
+        disableFocusRipple: true,
+        disableRipple: true,
+        disableTouchRipple: true,
       },
       styleOverrides: {
         root: {
           borderRadius: '32px',
           textTransform: 'inherit',
+          borderColor: '#669900',
           '&.Mui-disabled': {
             backgroundColor: '#D1D5DB',
             color: '#9CA3AF',

@@ -1,10 +1,14 @@
 import { pxToRem } from '@/util/font';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
-import { useGetProfile } from '@/services/auth';
+import { useGetProfile } from '@/services/profile';
 
 import upIcon from '@/assets/icons/up-icon.svg';
 
-export const DashboardHeader = () => {
+interface DashboardHeaderProps {
+  onBuyGas?: () => void;
+}
+
+export const DashboardHeader = ({ onBuyGas }: DashboardHeaderProps) => {
   const { data: user, isLoading } = useGetProfile();
 
   const firstName = user?.firstName ?? 'there';
@@ -31,11 +35,16 @@ export const DashboardHeader = () => {
           Welcome, {firstName}
         </Typography>
       )}
-      <Box display='flex' gap={1} flexShrink={0}>
-        <Button variant='text' size='small'>
-          Link New Meter
+      <Box display='flex' flexDirection={{ md: 'row', xs: 'column' }} gap={{ md: 2, xs: 2 }} flexShrink={0} width={{ xs: '100%', md: 'auto' }}>
+        <Button variant='text' sx={{ whiteSpace: 'nowrap', px: 3 }}>
+          Gift Gas 🎁
         </Button>
-        <Button variant='contained' size='small' endIcon={<img src={upIcon} />}>
+        <Button
+          variant='contained'
+          sx={{ whiteSpace: 'nowrap', px: 3 }}
+          endIcon={<img src={upIcon} />}
+          onClick={onBuyGas}
+        >
           Buy gas
         </Button>
       </Box>

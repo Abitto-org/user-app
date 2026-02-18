@@ -1,6 +1,6 @@
 import { Avatar, Box, IconButton, Skeleton, Typography } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
-import { useGetProfile } from '@/services/auth';
+import { useGetProfile } from '@/services/profile';
 
 interface DashboardProfileHeaderProps {
   onMenuToggle?: () => void;

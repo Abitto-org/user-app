@@ -12,7 +12,7 @@ import {
   FormHelperText,
   CircularProgress,
 } from '@mui/material';
-import { useGetEstates, useOnboarding } from '@/services/auth';
+import { useGetEstates, useOnboarding } from '@/services/profile';
 
 const OTHER_ESTATE_VALUE = 'other';
 

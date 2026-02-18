@@ -6,6 +6,7 @@ import settingsIcon from '@/assets/icons/settings-icon.svg';
 import helpIcon from '@/assets/icons/help-icon.svg';
 import logoutIcon from '@/assets/icons/logout-icon.svg';
 
+import abittoLogo from '@/assets/abitto-logo.png';
 import { Box, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -52,9 +53,7 @@ export const SideBar = () => {
   return (
     <Box borderRight='1px solid #ECECEC' height='100%' p={2}>
       <Box mb={3}>
-        <Typography gutterBottom variant='h6' color='#669900'>
-          Abitto Energy
-        </Typography>
+        <img src={abittoLogo} alt='Abitto Energy' style={{ height: 40 }} />
       </Box>
       <Typography variant='subtitle1' color='#414141' fontWeight='bold'>
         General
