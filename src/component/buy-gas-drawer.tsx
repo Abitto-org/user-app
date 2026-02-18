@@ -27,13 +27,11 @@ import walletIcon from '@/assets/wallet.svg'
 
 const buyGasSchema = z.object({
   meter: z.string().min(1, 'Please select a meter'),
-  amount: z
-    .string()
+  amount: z.coerce
+    .number({ error: 'Amount must be a number' })
     .min(1, 'Amount is required')
-    .refine((val) => Number(val) >= 1000, 'Minimum amount is ₦1,000'),
-  paymentMethod: z.enum(['wallet', 'online'], {
-    message: 'Please choose a payment method',
-  }),
+    .refine((val) => val >= 1000, { message: 'Minimum amount is ₦1,000' }),
+  paymentMethod: z.enum(['wallet', 'online']),
 });
 
 type BuyGasFormData = z.infer<typeof buyGasSchema>;
@@ -57,7 +55,7 @@ export const BuyGasDrawer = ({ open, onClose }: BuyGasDrawerProps) => {
     resolver: zodResolver(buyGasSchema),
     defaultValues: {
       meter: '',
-      amount: '',
+      amount: 0,
       paymentMethod: undefined,
     },
   });
@@ -70,7 +68,7 @@ export const BuyGasDrawer = ({ open, onClose }: BuyGasDrawerProps) => {
 
   const onSubmit = (data: BuyGasFormData) => {
     initializePurchase(
-      { amount: data.amount, meterId: data.meter },
+      { amount: +data.amount, meterId: data.meter },
       {
         onSuccess: (response) => {
           reset();

@@ -10,7 +10,7 @@ interface ApiError {
 // ── Initialize Gas Purchase ──
 
 interface InitializeGasPurchasePayload {
-  amount: string;
+  amount: string | number;
   meterId: string;
 }
 
