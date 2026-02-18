@@ -1,7 +1,7 @@
 import { Chip, Link } from '@mui/material';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import { DataTable, type DataTableColumn } from '@/shared/data-table';
-import { useGetTransactions, type Transaction } from '@/services/transactions';
+import { useGetTransactions, getKgPurchased, type Transaction } from '@/services/transactions';
 
 const statusConfig: Record<string, { label: string; bg: string; color: string }> = {
   SUCCESS: {
@@ -69,7 +69,10 @@ const columns: DataTableColumn<Transaction>[] = [
     key: 'gasUnit',
     header: 'Gas Unit',
     skeletonWidth: 50,
-    render: (row) => `${row.metadata?.metadata?.kgPurchased} kg`,
+    render: (row) => {
+      const kg = getKgPurchased(row.metadata);
+      return kg ? `${kg} kg` : '—';
+    },
   },
   {
     key: 'status',

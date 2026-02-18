@@ -1,6 +1,28 @@
 import { useQuery } from '@tanstack/react-query';
 import { http } from '@/services/http';
 
+interface GasPurchaseMetadata {
+  meterId: string;
+  kgPurchased: string;
+  gasPricePerKg: string;
+}
+
+interface PaystackWebhookMetadata {
+  amount: number;
+  status: string;
+  channel: string;
+  currency: string;
+  reference: string;
+  gateway_response: string;
+  paid_at: string;
+  metadata: GasPurchaseMetadata;
+  customer: Record<string, unknown>;
+  authorization: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export type TransactionMetadata = GasPurchaseMetadata | PaystackWebhookMetadata;
+
 export interface Transaction {
   id: string;
   userId: string;
@@ -11,19 +33,26 @@ export interface Transaction {
   reference: string;
   provider: string;
   description: string;
-  metadata: {
-    metdata: {
-      meterId: string;
-      kgPurchased: string;
-      gasPricePerKg: string;
-    };
-    meterId: string;
-    kgPurchased: string;
-    gasPricePerKg: string;
-  };
+  metadata: TransactionMetadata;
   createdAt: string;
   updatedAt: string;
 }
+
+/**
+ * Extracts kgPurchased from either metadata shape:
+ *  - Simple:   { kgPurchased, meterId, gasPricePerKg }
+ *  - Paystack: { metadata: { kgPurchased, ... }, ... }
+ */
+export const getKgPurchased = (metadata: TransactionMetadata): string | null => {
+  if ('kgPurchased' in metadata && typeof metadata.kgPurchased === 'string') {
+    return metadata.kgPurchased;
+  }
+  if ('metadata' in metadata && metadata.metadata && typeof metadata.metadata === 'object') {
+    const nested = metadata.metadata as unknown as Record<string, unknown>;
+    if (typeof nested.kgPurchased === 'string') return nested.kgPurchased;
+  }
+  return null;
+};
 
 interface TransactionsResponse {
   status: string;

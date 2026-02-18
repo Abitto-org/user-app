@@ -15,7 +15,6 @@ export const Dashboard = () => {
   const [buyGasOpen, setBuyGasOpen] = useState(false);
   const { data } = useGetProfile()
 
-  console.log('Profile data', data)
   const Stats = [
     {
       title: 'remaining kg',
