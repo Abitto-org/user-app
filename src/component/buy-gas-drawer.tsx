@@ -51,12 +51,12 @@ export const BuyGasDrawer = ({ open, onClose }: BuyGasDrawerProps) => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<BuyGasFormData>({
+  } = useForm({
     resolver: zodResolver(buyGasSchema),
     defaultValues: {
       meter: '',
-      amount: 0,
-      paymentMethod: undefined,
+      amount: '' as unknown as number,
+      paymentMethod: '' as unknown as 'wallet' | 'online',
     },
   });
 
