@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 import { http } from '@/services/http';
+import { useMeterId } from '@/hooks/use-meter-id';
 import type { AxiosError } from 'axios';
 
 interface ApiError {
@@ -60,8 +61,10 @@ interface ProfileResponse {
 }
 
 export const useGetProfile = () => {
+  const meterId = useMeterId();
+
   return useQuery<UserProfile>({
-    queryKey: ['profile'],
+    queryKey: ['profile', meterId],
     queryFn: async () => {
       const { data } = await http.get<ProfileResponse>('/user/profile');
       return data.data.user;

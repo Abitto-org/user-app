@@ -2,12 +2,13 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { DashboardLayout } from '@/layouts/dashboard';
 import { AuthLayout } from '@/layouts/auth';
 import { Dashboard } from '@/pages/dashboard';
+import { Transactions } from '@/pages/transactions';
 import { Login } from '@/pages/login';
 import { Register } from '@/pages/register';
 import { VerifyOtp } from '@/pages/verify-otp';
 import { Onboarding } from '@/pages/onboarding';
 import { OnboardingSuccess } from '@/pages/onboarding-success';
-import { AuthGuard, ProtectedRoute } from '@/component/route-guards';
+import { AuthGuard, ProtectedRoute, MeterRedirect } from '@/component/route-guards';
 
 function App() {
   return (
@@ -29,8 +30,13 @@ function App() {
 
       {/* Requires token + onboarding completed */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+        {/* Bare /dashboard → redirect to /:meterId/dashboard */}
+        <Route path="/dashboard" element={<MeterRedirect page="dashboard" />} />
+        <Route path="/transactions" element={<MeterRedirect page="transactions" />} />
+
+        <Route path="/:meterId" element={<DashboardLayout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="transactions" element={<Transactions />} />
         </Route>
       </Route>
 

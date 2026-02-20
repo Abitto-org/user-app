@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { http } from '@/services/http';
+import { useMeterId } from '@/hooks/use-meter-id';
 
 interface GasPurchaseMetadata {
   meterId: string;
@@ -77,6 +78,8 @@ export interface TransactionFilters {
 }
 
 export const useGetTransactions = (filters: TransactionFilters = {}) => {
+  const meterId = useMeterId();
+
   const params = new URLSearchParams();
   if (filters.page) params.set('page', String(filters.page));
   if (filters.limit) params.set('limit', String(filters.limit));
@@ -88,13 +91,13 @@ export const useGetTransactions = (filters: TransactionFilters = {}) => {
   if (filters.maxAmount) params.set('maxAmount', String(filters.maxAmount));
 
   return useQuery<TransactionsResponse['data']>({
-    queryKey: ['transactions', filters],
+    queryKey: ['transactions', meterId, filters],
     queryFn: async () => {
       const { data } = await http.get<TransactionsResponse>(
         `/transactions/mine?${params.toString()}`,
       );
       return data.data;
     },
-    enabled: !!localStorage.getItem('token'),
+    enabled: !!localStorage.getItem('token') && !!meterId,
   });
 };

@@ -8,41 +8,49 @@ import logoutIcon from '@/assets/icons/logout-icon.svg';
 
 import abittoLogo from '@/assets/abitto-logo.png';
 import { Box, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 
 const sideItems = {
   general: [
     {
       icon: dashboardIcon,
       title: 'Dashboard',
+      page: 'dashboard',
     },
     {
       icon: usageIcon,
       title: 'Usage',
+      page: 'usage',
     },
     {
       icon: walletIcon,
       title: 'Wallet',
+      page: 'wallet',
     },
     {
       icon: transactionIcon,
       title: 'Transactions',
+      page: 'transactions',
     },
   ],
   system: [
     {
       icon: helpIcon,
       title: 'Help Center',
+      page: 'help',
     },
     {
       icon: settingsIcon,
       title: 'Settings',
+      page: 'settings',
     },
   ],
 };
 
 export const SideBar = () => {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const { meterId } = useParams<{ meterId: string }>();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -58,52 +66,72 @@ export const SideBar = () => {
       <Typography variant='subtitle1' color='#414141' fontWeight='bold'>
         General
       </Typography>
-      {sideItems['general'].map((item) => (
-        <Box
-          key={item.title}
-          display='flex'
-          alignItems='center'
-          my={1}
-          gap='12px'
-          width='100%'
-          p={1}
-          sx={{
-            '&:hover': {
-              bgcolor: '#FAFAFA',
-            },
-          }}
-        >
-          <img src={item.icon} />
-          <Typography variant='subtitle2' color='#414141'>
-            {item.title}
-          </Typography>
-        </Box>
-      ))}
+      {sideItems['general'].map((item) => {
+        const fullPath = `/${meterId}/${item.page}`;
+        const isActive = pathname.endsWith(`/${item.page}`);
+        return (
+          <Box
+            key={item.title}
+            display='flex'
+            alignItems='center'
+            my={1}
+            gap='12px'
+            width='100%'
+            p={1}
+            onClick={() => navigate(fullPath)}
+            sx={{
+              cursor: 'pointer',
+              borderRadius: '8px',
+              bgcolor: isActive ? '#F0F7E0' : 'transparent',
+              '&:hover': { bgcolor: isActive ? '#F0F7E0' : '#FAFAFA' },
+            }}
+          >
+            <img src={item.icon} />
+            <Typography
+              variant='subtitle2'
+              color={isActive ? '#669900' : '#414141'}
+              fontWeight={isActive ? 600 : 400}
+            >
+              {item.title}
+            </Typography>
+          </Box>
+        );
+      })}
 
       <Typography mt={3} variant='subtitle1' color='#414141' fontWeight='bold'>
         System
       </Typography>
-      {sideItems['system'].map((item) => (
-        <Box
-          key={item.title}
-          display='flex'
-          alignItems='center'
-          my={1}
-          gap='12px'
-          width='100%'
-          p={1}
-          sx={{
-            '&:hover': {
-              bgcolor: '#FAFAFA',
-            },
-          }}
-        >
-          <img src={item.icon} />
-          <Typography variant='subtitle2' color='#414141'>
-            {item.title}
-          </Typography>
-        </Box>
-      ))}
+      {sideItems['system'].map((item) => {
+        const fullPath = `/${meterId}/${item.page}`;
+        const isActive = pathname.endsWith(`/${item.page}`);
+        return (
+          <Box
+            key={item.title}
+            display='flex'
+            alignItems='center'
+            my={1}
+            gap='12px'
+            width='100%'
+            p={1}
+            onClick={() => navigate(fullPath)}
+            sx={{
+              cursor: 'pointer',
+              borderRadius: '8px',
+              bgcolor: isActive ? '#F0F7E0' : 'transparent',
+              '&:hover': { bgcolor: isActive ? '#F0F7E0' : '#FAFAFA' },
+            }}
+          >
+            <img src={item.icon} />
+            <Typography
+              variant='subtitle2'
+              color={isActive ? '#669900' : '#414141'}
+              fontWeight={isActive ? 600 : 400}
+            >
+              {item.title}
+            </Typography>
+          </Box>
+        );
+      })}
 
       <Box
         bgcolor='#EA00001A'

@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import { http } from '@/services/http';
+import { useMeterId } from '@/hooks/use-meter-id';
 import type { AxiosError } from 'axios';
 
 interface ApiError {
@@ -76,15 +77,17 @@ interface GasPurchaseStatusResponse {
 }
 
 export const useGetPurchaseStatus = (reference: string) => {
+  const meterId = useMeterId();
+
   return useQuery<GasPurchaseStatus>({
-    queryKey: ['purchase-status', reference],
+    queryKey: ['purchase-status', meterId, reference],
     queryFn: async () => {
       const { data } = await http.get<GasPurchaseStatusResponse>(
         `/gas-purchase/status/${reference}`,
       );
       return data.data;
     },
-    enabled: !!reference,
+    enabled: !!reference && !!meterId,
     refetchInterval: (query) => {
       const status = query.state.data?.paymentStatus;
       if (status === 'SUCCESS' || status === 'FAILED') return false;

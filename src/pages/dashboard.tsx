@@ -9,16 +9,21 @@ import { Typography, Box, Button } from '@mui/material';
 import { RecentActivity } from '@/component/recent-activity';
 import { WeeklyUsage } from '@/component/weekly-usage';
 import { RecentActivityTable } from '@/component/recent-activity-table';
-import { useGetProfile } from '@/services/profile';
+import { useGetMeter } from '@/services/meters';
 
 export const Dashboard = () => {
   const [buyGasOpen, setBuyGasOpen] = useState(false);
-  const { data } = useGetProfile()
+
+  const { data: meter } = useGetMeter()
+
+  console.log('Single meter', meter)
 
   const Stats = [
     {
       title: 'remaining kg',
-      value: data?.availableGasKg,
+      value: meter?.availableGasKg
+        ? Number(meter.availableGasKg).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 3 })
+        : '0.00',
       leftComponent: (
         <Box
           display='flex'
