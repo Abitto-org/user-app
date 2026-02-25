@@ -16,35 +16,55 @@ export const DashboardHeader = ({ onBuyGas }: DashboardHeaderProps) => {
 
   return (
     <>
-
       <Box
         width='100%'
         display='flex'
-        flexDirection={{ xs: 'column', sm: 'row' }}
-        alignItems={{ xs: 'flex-start', sm: 'center' }}
+        flexDirection={{ xs: 'column', md: 'row' }}
+        alignItems={{ xs: 'stretch', md: 'center' }}
         justifyContent='space-between'
-        gap={2}
-        mb={2}
+        gap={{ xs: 1.5, md: 2 }}
+        mb={1.5}
       >
         {isLoading ? (
-          <Skeleton width={280} height={48} />
+          <Skeleton width={280} height={46} />
         ) : (
           <Typography
-            fontWeight='bold'
+            fontWeight={700}
             letterSpacing={0}
-            fontSize={{ xs: pxToRem(28), sm: pxToRem(34), md: pxToRem(32) }}
+            fontSize={{ xs: pxToRem(30), sm: pxToRem(34), md: pxToRem(36) }}
             textTransform='capitalize'
+            lineHeight={1.15}
           >
             Welcome, {firstName}
           </Typography>
         )}
-        <Box display='flex' flexDirection={{ md: 'row', xs: 'column' }} gap={{ md: 2, xs: 2 }} flexShrink={0} width={{ xs: '100%', md: 'auto' }}>
-          <Button variant='text' sx={{ whiteSpace: 'nowrap', px: 3 }}>
+        <Box
+          display='flex'
+          flexDirection={{ xs: 'column', sm: 'row' }}
+          gap={{ md: 1.5, xs: 1.5 }}
+          flexShrink={0}
+          width={{ xs: '100%', md: 'auto' }}
+          justifyContent={{ xs: 'stretch', sm: 'flex-start', md: 'flex-end' }}
+        >
+          <Button
+            variant='text'
+            sx={{
+              whiteSpace: 'nowrap',
+              px: 3,
+              minHeight: 42,
+              width: { xs: '100%', sm: 'auto' },
+            }}
+          >
             Gift Gas 🎁
           </Button>
           <Button
             variant='contained'
-            sx={{ whiteSpace: 'nowrap', px: 3 }}
+            sx={{
+              whiteSpace: 'nowrap',
+              px: 3,
+              minHeight: 42,
+              width: { xs: '100%', sm: 'auto' },
+            }}
             endIcon={<img src={upIcon} />}
             onClick={onBuyGas}
           >
@@ -52,7 +72,9 @@ export const DashboardHeader = ({ onBuyGas }: DashboardHeaderProps) => {
           </Button>
         </Box>
       </Box>
-      <MeterSelector />
+      <Box mb={2}>
+        <MeterSelector />
+      </Box>
     </>
   );
 };

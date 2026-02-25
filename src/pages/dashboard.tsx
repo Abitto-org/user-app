@@ -12,23 +12,30 @@ import { RecentActivityTable } from '@/component/recent-activity-table';
 import { useGetMeter, useGetMeterStats } from '@/services/meters';
 import { useGetWalletBalance } from '@/services/wallet';
 import { pxToRem } from '@/util/font';
+import { useMeterId } from '@/hooks/use-meter-id';
+import { useNavigate } from 'react-router-dom';
 
 
 export const Dashboard = () => {
   const [buyGasOpen, setBuyGasOpen] = useState(false);
+  const navigate = useNavigate();
+  const meterId = useMeterId();
 
-  const { data: meter } = useGetMeter()
-  const { data: walletBalance } = useGetWalletBalance()
+  const { data: meter } = useGetMeter();
+  const { data: walletBalance } = useGetWalletBalance();
 
-  const { data: meterStats } = useGetMeterStats()
+  const { data: meterStats } = useGetMeterStats();
 
+  const formatKgValue = (value: number | string | undefined) =>
+    `${Number(value ?? 0).toLocaleString('en-NG', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 3,
+    })} kg`;
 
   const Stats = [
     {
       title: 'remaining kg',
-      value: meter?.availableGasKg
-        ? Number(meter.availableGasKg).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 3 })
-        : '0.00' + 'kg',
+      value: formatKgValue(meter?.availableGasKg),
       leftComponent: (
         <Box
           display='flex'
@@ -52,7 +59,7 @@ export const Dashboard = () => {
     },
     {
       title: 'kg used today',
-      value: `${meterStats?.usedToday} kg`,
+      value: formatKgValue(meterStats?.usedToday),
       below: 'View Usage',
       leftComponent: (
         <Box
@@ -77,7 +84,10 @@ export const Dashboard = () => {
     },
     {
       title: 'wallet balance',
-      value: `₦${walletBalance?.balance}`,
+      value: `₦${Number(walletBalance?.balance ?? 0).toLocaleString('en-NG', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`,
       below: 'view wallet',
     },
   ];
@@ -90,7 +100,7 @@ export const Dashboard = () => {
         display='flex'
         flexDirection={{ xs: 'column', md: 'row' }}
         alignItems={{ xs: 'stretch', md: 'flex-start' }}
-        gap={1}
+        gap={1.5}
         justifyContent='space-between'
         mt={2}
       >
@@ -98,29 +108,40 @@ export const Dashboard = () => {
           <Box
             bgcolor='white'
             display='flex'
-            alignItems='center'
+            alignItems='flex-start'
             justifyContent='space-between'
             key={item.title}
             width='100%'
-            p={2}
-            borderRadius='8px'
-            border='1px solid #F8F8F8'
+            p={2.25}
+            borderRadius='12px'
+            border='1px solid #EBECEF'
+            minHeight={132}
+            sx={{
+              transition: 'box-shadow 160ms ease, transform 160ms ease',
+              boxShadow: '0 1px 2px rgba(16, 24, 40, 0.04)',
+              '&:hover': {
+                boxShadow: '0 8px 18px rgba(16, 24, 40, 0.08)',
+                transform: 'translateY(-1px)',
+              },
+            }}
           >
             <Box>
               <Typography
                 textTransform='capitalize'
                 color='#414141'
-                variant='subtitle2'
+                variant='body2'
+                fontWeight={500}
               >
                 {item.title}
               </Typography>
-              <Typography variant='h5' fontWeight='bold' my={1}>
+              <Typography variant='h5' fontWeight={700} my={1}>
                 {item.value}
               </Typography>
               <Typography
-                variant='subtitle2'
+                variant='caption'
                 textTransform='capitalize'
-                fontWeight='bold'
+                fontWeight={600}
+                color='text.secondary'
               >
                 {item.below}
               </Typography>
@@ -146,18 +167,35 @@ export const Dashboard = () => {
           <RecentActivity />
         </Box>
       </Box>
-      <Box bgcolor='white' borderRadius={2} p={2}>
+      <Box bgcolor='white' borderRadius={2} p={2.5} border='1px solid #EBECEF'>
         <Box>
           <Box>
-            <Typography fontSize={pxToRem(16)} fontWeight='bold'>Transactions</Typography>
-            <Typography mb={3} fontSize={pxToRem(14)} textTransform='capitalize' color='#424242'>view all your transactions</Typography>
+            <Typography fontSize={pxToRem(16)} fontWeight='bold'>
+              Transactions
+            </Typography>
+            <Typography
+              mb={3}
+              fontSize={pxToRem(14)}
+              textTransform='capitalize'
+              color='#667085'
+            >
+              view all your transactions
+            </Typography>
           </Box>
         </Box>
         <RecentActivityTable />
         <Box display='flex' alignItems='center' justifyContent='flex-end' mt={2}>
-          <Button sx={{
-            alignItems: 'flex-end',
-          }} variant='contained' endIcon={<img src={upIcon} />}>
+          <Button
+            sx={{
+              alignItems: 'flex-end',
+              px: 3,
+            }}
+            variant='contained'
+            endIcon={<img src={upIcon} />}
+            onClick={() => {
+              if (meterId) navigate(`/${meterId}/transactions`);
+            }}
+          >
             View all transactions
           </Button>
         </Box>

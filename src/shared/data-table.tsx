@@ -11,6 +11,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 
 export interface DataTableColumn<T> {
   /** Unique key for the column */
@@ -85,7 +86,7 @@ function DesktopSkeleton<T>({
                   <Skeleton
                     variant='text'
                     width={col.skeletonWidth ?? 80}
-                    height={24}
+                    height={20}
                   />
                 </TableCell>
               ))}
@@ -128,7 +129,7 @@ function MobileSkeleton<T>({
               <Skeleton
                 variant='text'
                 width={col.skeletonWidth ?? 80}
-                height={20}
+                height={18}
               />
             </Box>
           ))}
@@ -197,12 +198,13 @@ function DesktopTable<T>({
               <TableCell
                 key={col.key}
                 sx={{
-                  fontWeight: 600,
-                  fontSize: 14,
-                  color: '#111',
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: '#344054',
                   borderRight:
                     idx !== columns.length - 1 ? '1px solid #EAEAEA' : undefined,
-                  bgcolor: '#FAFAFA',
+                  bgcolor: '#F9FAFB',
+                  py: 1.25,
                 }}
               >
                 {col.header}
@@ -219,6 +221,9 @@ function DesktopTable<T>({
                   key={col.key}
                   sx={{
                     fontWeight: col.bold ? 600 : undefined,
+                    color: '#101828',
+                    fontSize: 13.5,
+                    py: 1.35,
                     borderRight:
                       colIndex !== columns.length - 1
                         ? '1px solid #EAEAEA'
@@ -263,9 +268,14 @@ export function DataTable<T>({
         bgcolor='white'
         borderRadius={2}
         border='1px solid #E4E7EC'
-        p={4}
+        p={3.5}
         textAlign='center'
+        display='flex'
+        flexDirection='column'
+        alignItems='center'
+        gap={1}
       >
+        <InboxOutlinedIcon sx={{ color: '#98A2B3', fontSize: 28 }} />
         <Typography color='text.secondary'>{emptyMessage}</Typography>
       </Box>
     );

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   Box,
   Pagination,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -9,6 +10,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import {
   isGasUsageActivity,
   useGetRecentActivities,
@@ -32,7 +34,7 @@ const formatKg = (value: string) =>
 
 export const UsageDailyTable = () => {
   const [page, setPage] = useState(1);
-  const { data = [] } = useGetRecentActivities();
+  const { data = [], isLoading } = useGetRecentActivities();
 
   const gasRows = useMemo(
     () => data.filter(isGasUsageActivity) as GasUsageActivity[],
@@ -66,6 +68,15 @@ export const UsageDailyTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
+            {isLoading &&
+              Array.from({ length: PAGE_SIZE }).map((_, index) => (
+                <TableRow key={`skeleton-${index}`}>
+                  <TableCell><Skeleton width={60} /></TableCell>
+                  <TableCell><Skeleton width={90} /></TableCell>
+                  <TableCell><Skeleton width={70} /></TableCell>
+                  <TableCell><Skeleton width={70} /></TableCell>
+                </TableRow>
+              ))}
             {pagedRows.map((row) => (
               <TableRow key={row.id}>
                 <TableCell>{formatDate(row.createdAt)}</TableCell>
@@ -74,10 +85,19 @@ export const UsageDailyTable = () => {
                 <TableCell>Normal</TableCell>
               </TableRow>
             ))}
-            {pagedRows.length === 0 && (
+            {!isLoading && pagedRows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4}>
-                  <Typography color='text.secondary'>No usage records yet.</Typography>
+                  <Box
+                    py={2}
+                    display='flex'
+                    flexDirection='column'
+                    alignItems='center'
+                    gap={1}
+                  >
+                    <InboxOutlinedIcon sx={{ color: '#98A2B3', fontSize: 24 }} />
+                    <Typography color='text.secondary'>No usage records yet.</Typography>
+                  </Box>
                 </TableCell>
               </TableRow>
             )}

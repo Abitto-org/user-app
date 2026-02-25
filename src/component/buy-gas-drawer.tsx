@@ -17,7 +17,7 @@ import {
   FormHelperText,
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
-import { useGetMeters } from '@/services/meters';
+import { useGetMeter, useGetMeters } from '@/services/meters';
 import { useInitializeGasPurchase } from '@/services/gas-purchase';
 import upIcon from '@/assets/icons/up-icon.svg';
 import { CircularProgress } from '@mui/material';
@@ -25,13 +25,14 @@ import { CircularProgress } from '@mui/material';
 import globeIcon from '@/assets/globe.svg'
 import walletIcon from '@/assets/wallet.svg'
 import { useGetPricePerKg } from '@/services/settings';
+import { useMeterId } from '@/hooks/use-meter-id';
 
 const buyGasSchema = z.object({
   meter: z.string().min(1, 'Please select a meter'),
   amount: z.coerce
     .number({ error: 'Amount must be a number' })
     .min(1, 'Amount is required')
-    .refine((val) => val >= 1000, { message: 'Minimum amount is ₦1,000' }),
+    .refine((val) => val >= 0, { message: 'Minimum amount is ₦1,000' }),
   paymentMethod: z.enum(['wallet', 'online']),
 });
 
@@ -61,12 +62,17 @@ export const BuyGasDrawer = ({ open, onClose }: BuyGasDrawerProps) => {
     },
   });
 
+  const meterId = useMeterId()
+  const { data: singleMeter } = useGetMeter(meterId!)
+
+  console.log('Single meter', singleMeter)
+
   const { data: priceData } = useGetPricePerKg();
   const pricePerKg = Number(priceData?.gasPricePerKg ?? 0);
   const kgEstimate = (() => {
     const amount = Number(amountInput);
     if (!amount || amount <= 0 || !pricePerKg || pricePerKg <= 0) return '0';
-    return (amount / pricePerKg).toFixed(0);
+    return (amount / pricePerKg).toFixed(3);
   })();
 
   const onSubmit = (data: BuyGasFormData) => {

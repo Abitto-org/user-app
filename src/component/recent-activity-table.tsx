@@ -90,9 +90,10 @@ const getColumns = (
           sx={{
             bgcolor: config.bg,
             color: config.color,
-            fontWeight: 500,
+            fontWeight: 600,
             borderRadius: '999px',
-            height: 28,
+            height: 30,
+            minWidth: 86,
           }}
         />
       );
@@ -112,10 +113,13 @@ const getColumns = (
         underline='none'
         sx={{
           color: '#6A9A00',
-          fontWeight: 500,
+          fontWeight: 600,
           display: 'inline-flex',
           alignItems: 'center',
           gap: 0.5,
+          '&:hover': {
+            opacity: 0.86,
+          },
         }}
       >
         View <NorthEastIcon sx={{ fontSize: 16 }} />

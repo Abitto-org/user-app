@@ -1,10 +1,15 @@
-import { Avatar, Box, IconButton, Skeleton, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Avatar, Box, IconButton, Skeleton, Tooltip, Typography } from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { useGetProfile } from '@/services/profile';
 import { pxToRem } from '@/util/font';
 import { useGetMeter } from '@/services/meters';
 import copyIcon from '@/assets/icons/copy-icon.svg';
 import { useSnackbar } from 'notistack';
+import { NotificationsDrawer } from '@/component/notifications-drawer';
+import { useNotificationsUnreadCount } from '@/services/notifications';
+
+import NotificationsIcon from '@/assets/icons/notifications.svg';
 
 interface DashboardProfileHeaderProps {
   onMenuToggle?: () => void;
@@ -13,9 +18,11 @@ interface DashboardProfileHeaderProps {
 export const DashboardProfileHeader = ({
   onMenuToggle,
 }: DashboardProfileHeaderProps) => {
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const { data: user, isLoading } = useGetProfile();
   const { data } = useGetMeter();
+  const { data: unreadCount = 0 } = useNotificationsUnreadCount();
 
   const firstName = user?.firstName ?? '';
   const lastName = user?.lastName ?? '';
@@ -45,6 +52,7 @@ export const DashboardProfileHeader = ({
       position='sticky'
       top={0}
       zIndex={10}
+      borderBottom='1px solid #ECECEC'
     >
       {onMenuToggle ? (
         <IconButton onClick={onMenuToggle} edge='start'>
@@ -55,6 +63,49 @@ export const DashboardProfileHeader = ({
       )}
 
       <Box display='flex' alignItems='center' gap={1}>
+        <Tooltip title={"Notifications"} placement="top">
+          <Box position='relative' mr={2.5}>
+            <IconButton
+              size='small'
+              onClick={() => setNotificationsOpen(true)}
+              sx={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '6px',
+                '&:hover': { bgcolor: '#FAFAFA' },
+              }}
+              aria-label='notifications'
+            >
+              <Box
+                component='img'
+                src={NotificationsIcon}
+                alt='notifications'
+                sx={{ width: '28px', height: '28px' }}
+              />
+            </IconButton>
+            {unreadCount > 0 && (
+              <Box
+                position='absolute'
+                top={-4}
+                right={-4}
+                minWidth={18}
+                height={18}
+                px={0.5}
+                borderRadius='999px'
+                bgcolor='#D92D20'
+                color='white'
+                display='flex'
+                alignItems='center'
+                justifyContent='center'
+                fontSize={10}
+                fontWeight={700}
+                lineHeight={1}
+              >
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </Box>
+            )}
+          </Box>
+        </Tooltip>
         {isLoading ? (
           <>
             <Skeleton variant='circular' width={40} height={40} />
@@ -111,6 +162,10 @@ export const DashboardProfileHeader = ({
           </>
         )}
       </Box>
+      <NotificationsDrawer
+        open={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+      />
     </Box>
   );
 };

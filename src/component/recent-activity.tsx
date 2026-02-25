@@ -1,5 +1,6 @@
 import { Box, Skeleton, Stack, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 
 import depositIcon from '@/assets/icons/deposit-icon.svg';
 import { useMeterId } from '@/hooks/use-meter-id';
@@ -28,12 +29,19 @@ export const RecentActivity = () => {
   };
 
   return (
-    <Box bgcolor='white' borderRadius='8px' p={2} height='100%' width='100%'>
+    <Box
+      bgcolor='white'
+      borderRadius='12px'
+      border='1px solid #EBECEF'
+      p={2.5}
+      height='100%'
+      width='100%'
+    >
       <Stack direction='row' width='full' justifyContent='space-between'>
         <Typography
           textTransform='capitalize'
           variant='subtitle1'
-          fontWeight={600}
+          fontWeight={700}
         >
           recent activity
         </Typography>
@@ -43,7 +51,7 @@ export const RecentActivity = () => {
           color='#669900'
           letterSpacing={-1}
           variant='subtitle1'
-          fontWeight={600}
+          fontWeight={700}
         >
           View all
         </Typography>
@@ -98,24 +106,37 @@ export const RecentActivity = () => {
             <Box
               key={activity.id}
               display='flex'
-              alignItems='center'
+              alignItems='flex-start'
               mt={2}
               justifyContent='space-between'
+              pb={1.5}
+              borderBottom='1px solid #F2F4F7'
             >
-              <Box display='flex' gap={1}>
-                <img src={depositIcon} />
+              <Box display='flex' gap={1.25}>
+                <Box
+                  mt={0.25}
+                  width={28}
+                  height={28}
+                  borderRadius='50%'
+                  bgcolor='#F2F4F7'
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='center'
+                >
+                  <img src={depositIcon} />
+                </Box>
                 <Box>
                   <Typography
-                    variant='subtitle1'
-                    fontWeight='bold'
+                    variant='body1'
+                    fontWeight={700}
                     textTransform='capitalize'
                   >
                     {title}
                   </Typography>
                   <Typography
-                    variant='subtitle2'
-                    letterSpacing={-1}
-                    color='#414141'
+                    variant='caption'
+                    letterSpacing={0}
+                    color='#667085'
                   >
                     {subtitle}
                   </Typography>
@@ -123,18 +144,18 @@ export const RecentActivity = () => {
               </Box>
               <Box>
                 <Typography
-                  variant='subtitle1'
+                  variant='body2'
                   textAlign='right'
-                  fontWeight={600}
-                  letterSpacing={-1}
+                  fontWeight={700}
+                  letterSpacing={0}
                 >
                   {primaryValue}
                 </Typography>
                 <Typography
-                  variant='subtitle1'
+                  variant='caption'
                   color={secondaryColor}
-                  fontWeight={500}
-                  letterSpacing={-1}
+                  fontWeight={600}
+                  letterSpacing={0}
                   textAlign='right'
                 >
                   {secondaryValue}
@@ -145,7 +166,15 @@ export const RecentActivity = () => {
         })}
 
       {!isLoading && activities.length === 0 && (
-        <Box mt={3}>
+        <Box
+          mt={3}
+          display='flex'
+          flexDirection='column'
+          alignItems='center'
+          gap={1}
+          py={2}
+        >
+          <InboxOutlinedIcon sx={{ color: '#98A2B3', fontSize: 24 }} />
           <Typography variant='body2' color='text.secondary'>
             No recent activity yet.
           </Typography>

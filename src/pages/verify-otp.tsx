@@ -1,9 +1,10 @@
 import { useRef, useState, useEffect, type KeyboardEvent, type ClipboardEvent } from 'react';
-import { useLocation, Navigate } from 'react-router-dom';
+import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Box, Typography, Button, TextField, CircularProgress } from '@mui/material';
+import { ArrowBackIosNew } from '@mui/icons-material';
 import { useVerifyOtp, useResendOtp } from '@/services/auth';
 
 const OTP_LENGTH = 6;
@@ -22,9 +23,11 @@ type OtpFormData = z.infer<typeof otpSchema>;
 
 export const VerifyOtp = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const state = location.state as { email?: string; type?: string } | null;
   const email = state?.email;
   const otpType = state?.type || 'signup_verification';
+  const backRoute = otpType.includes('login') ? '/login' : '/register';
 
   const [seconds, setSeconds] = useState(COUNTDOWN_SECONDS);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -52,7 +55,7 @@ export const VerifyOtp = () => {
 
   // Redirect if no email in state
   if (!email) {
-    return <Navigate to={otpType === 'login_device_verification' ? '/login' : '/register'} replace />;
+    return <Navigate to={backRoute} replace />;
   }
 
 
@@ -112,6 +115,22 @@ export const VerifyOtp = () => {
       px={{ xs: 3, sm: 5, md: 8 }}
     >
       <Box width='100%' maxWidth={480}>
+        <Box display={{ xs: 'flex', md: 'none' }} mb={2}>
+          <Button
+            variant='text'
+            onClick={() => navigate(backRoute)}
+            startIcon={<ArrowBackIosNew sx={{ fontSize: 14 }} />}
+            sx={{
+              px: 0,
+              minWidth: 0,
+              color: '#344054',
+              fontWeight: 600,
+              '&:hover': { backgroundColor: 'transparent', color: '#1D2939' },
+            }}
+          >
+            Back
+          </Button>
+        </Box>
         <Typography
           variant='h3'
           fontWeight='bold'

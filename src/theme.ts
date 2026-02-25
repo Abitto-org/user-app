@@ -43,6 +43,9 @@ const theme = createTheme({
           borderRadius: '32px',
           textTransform: 'inherit',
           borderColor: '#669900',
+          fontWeight: 600,
+          letterSpacing: 0,
+          transition: 'all 160ms ease',
           '&:focus, &:focus-visible': {
             outline: 'none',
             boxShadow: 'none',
@@ -56,6 +59,8 @@ const theme = createTheme({
             color: '#fff',
             '&:hover': {
               backgroundColor: '#558000',
+              transform: 'translateY(-1px)',
+              boxShadow: '0 8px 16px rgba(102, 153, 0, 0.28)',
             },
           },
           '&.MuiButton-text': {
@@ -69,6 +74,20 @@ const theme = createTheme({
               backgroundColor: '#558000',
             },
           },
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderBottomColor: '#EAECF0',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        rounded: {
+          borderRadius: 12,
         },
       },
     },

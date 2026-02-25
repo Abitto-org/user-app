@@ -32,7 +32,8 @@ export const WeeklyUsage = () => {
   return (
     <Box
       bgcolor='white'
-      borderRadius='8px'
+      borderRadius='12px'
+      border='1px solid #EBECEF'
       p={3}
       height='100%'
       width='100%'
@@ -48,7 +49,7 @@ export const WeeklyUsage = () => {
         <Box>
           <Typography
             variant='h6'
-            fontWeight={600}
+            fontWeight={700}
             sx={{
               mb: 0.5,
             }}
@@ -57,7 +58,7 @@ export const WeeklyUsage = () => {
           </Typography>
           <Stack direction='row' alignItems='center' gap={0.5} mt={0.5}>
             <img src={upIcon} alt='up' />
-            <Typography variant='body2' color='text.secondary'>
+            <Typography variant='body2' color='text.secondary' fontWeight={500}>
               {(meterStats?.weeklyChangePercentage ?? 0).toLocaleString('en-NG', {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 2,
@@ -68,11 +69,7 @@ export const WeeklyUsage = () => {
         </Box>
         <Stack direction='row' alignItems='center' gap={2}>
           <Box>
-            <Typography
-              variant='body2'
-              color='text.secondary'
-              textAlign='right'
-            >
+            <Typography variant='body2' color='#101828' textAlign='right' fontWeight={600}>
               {formatUnits(meterStats?.usedThisWeek)}
             </Typography>
             <Typography
@@ -85,11 +82,7 @@ export const WeeklyUsage = () => {
           </Box>
           <Box width='1px' height='30px' bgcolor='#E0E0E0' />
           <Box>
-            <Typography
-              variant='body2'
-              color='text.secondary'
-              textAlign='right'
-            >
+            <Typography variant='body2' color='#101828' textAlign='right' fontWeight={600}>
               {formatUnits(meterStats?.usedToday)}
             </Typography>
             <Typography
@@ -143,9 +136,10 @@ export const WeeklyUsage = () => {
               ]}
               labelFormatter={(label) => `Day: ${label}`}
               contentStyle={{
-                borderRadius: '10px',
+                borderRadius: '12px',
                 border: '1px solid #E4E7EC',
                 boxShadow: '0 6px 18px rgba(0,0,0,0.08)',
+                padding: '8px 10px',
               }}
             />
             <Area

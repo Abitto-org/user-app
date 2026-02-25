@@ -7,6 +7,7 @@ import {
   Skeleton,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import { useSelectedMeter } from '@/hooks/use-selected-meter';
 
 export const MeterSelector = () => {
@@ -26,7 +27,23 @@ export const MeterSelector = () => {
     return <Skeleton variant='rounded' width={180} height={40} sx={{ borderRadius: '32px' }} />;
   }
 
-  if (meters.length === 0) return null;
+  if (meters.length === 0) {
+    return (
+      <Box
+        display='flex'
+        alignItems='center'
+        gap={1}
+        color='text.secondary'
+        border='1px dashed #D0D5DD'
+        borderRadius='32px'
+        px={2}
+        py={0.75}
+      >
+        <InboxOutlinedIcon sx={{ fontSize: 18 }} />
+        <Typography fontSize={14}>No meters available</Typography>
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -53,7 +70,7 @@ export const MeterSelector = () => {
         onClose={() => setAnchorEl(null)}
         slotProps={{
           paper: {
-            sx: { borderRadius: '12px', mt: 1, minWidth: 180, border: '1px solid', borderColor: 'primary' },
+            sx: { borderRadius: '12px', mt: 1, minWidth: 180, border: '0.5px solid', borderColor: 'primary' },
             elevation: 0,
           },
         }}
