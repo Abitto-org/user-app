@@ -15,6 +15,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import { DataTable, type DataTableColumn } from '@/shared/data-table';
+import { TransactionDetailsDrawer } from '@/component/transaction-details-drawer';
 import {
   useGetTransactions,
   getKgPurchased,
@@ -54,7 +55,9 @@ const formatType = (type: string) => {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
-const columns: DataTableColumn<Transaction>[] = [
+const getColumns = (
+  onView: (transaction: Transaction) => void,
+): DataTableColumn<Transaction>[] => [
   {
     key: 'timestamp',
     header: 'Timestamp',
@@ -107,9 +110,13 @@ const columns: DataTableColumn<Transaction>[] = [
     key: 'action',
     header: 'Action',
     skeletonWidth: 60,
-    render: () => (
+    render: (row) => (
       <Link
         href='#'
+        onClick={(e) => {
+          e.preventDefault();
+          onView(row);
+        }}
         underline='none'
         sx={{
           color: '#6A9A00',
@@ -137,6 +144,10 @@ export const Transactions = () => {
   const [search, setSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(
+    null,
+  );
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const filters: TransactionFilters = useMemo(
     () => ({
@@ -164,6 +175,14 @@ export const Transactions = () => {
         formatAmount(t.amount).toLowerCase().includes(q),
     );
   }, [data?.transactions, search]);
+  const columns = useMemo(
+    () =>
+      getColumns((transaction) => {
+        setSelectedTransaction(transaction);
+        setDetailsOpen(true);
+      }),
+    [],
+  );
 
   return (
     <Box>
@@ -295,6 +314,11 @@ export const Transactions = () => {
           </Box>
         )}
       </Box>
+      <TransactionDetailsDrawer
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        transaction={selectedTransaction}
+      />
     </Box>
   );
 };

@@ -62,3 +62,38 @@ export const useGetMeter = (id?: string) => {
     enabled: !!localStorage.getItem('token') && !!meterId,
   });
 };
+
+export interface MeterStats {
+  remainingKg: number;
+  usedToday: number;
+  usedThisWeek: number;
+  weeklyChangePercentage: number;
+  weeklyGraphData: Array<{
+    date: string;
+    total: number;
+  }>;
+}
+
+interface MeterStatsResponse {
+  status: string;
+  message: string;
+  data: MeterStats;
+}
+
+/**
+ * Fetch meter stats by meter ID.
+ * If no `id` is passed, falls back to the meterId from the URL path.
+ */
+export const useGetMeterStats = (id?: string) => {
+  const urlMeterId = useMeterId();
+  const meterId = id ?? urlMeterId;
+
+  return useQuery<MeterStats>({
+    queryKey: ['meter-stats', meterId],
+    queryFn: async () => {
+      const { data } = await http.get<MeterStatsResponse>(`/meter/stats/${meterId}`);
+      return data.data;
+    },
+    enabled: !!localStorage.getItem('token') && !!meterId,
+  });
+};

@@ -3,10 +3,10 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#3266CC',
+      main: '#669900',
     },
     secondary: {
-      main: '#669900',
+      main: '#3266CC',
     },
   },
   typography: {
@@ -43,6 +43,10 @@ const theme = createTheme({
           borderRadius: '32px',
           textTransform: 'inherit',
           borderColor: '#669900',
+          '&:focus, &:focus-visible': {
+            outline: 'none',
+            boxShadow: 'none',
+          },
           '&.Mui-disabled': {
             backgroundColor: '#D1D5DB',
             color: '#9CA3AF',

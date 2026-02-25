@@ -3,6 +3,8 @@ import { DashboardLayout } from '@/layouts/dashboard';
 import { AuthLayout } from '@/layouts/auth';
 import { Dashboard } from '@/pages/dashboard';
 import { Transactions } from '@/pages/transactions';
+import { Usage } from '@/pages/usage';
+import { Help } from '@/pages/help';
 import { Login } from '@/pages/login';
 import { Register } from '@/pages/register';
 import { VerifyOtp } from '@/pages/verify-otp';
@@ -33,10 +35,14 @@ function App() {
         {/* Bare /dashboard → redirect to /:meterId/dashboard */}
         <Route path="/dashboard" element={<MeterRedirect page="dashboard" />} />
         <Route path="/transactions" element={<MeterRedirect page="transactions" />} />
+        <Route path="/usage" element={<MeterRedirect page="usage" />} />
+        <Route path="/help" element={<MeterRedirect page="help" />} />
 
         <Route path="/:meterId" element={<DashboardLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="transactions" element={<Transactions />} />
+          <Route path="usage" element={<Usage />} />
+          <Route path="help" element={<Help />} />
         </Route>
       </Route>
 

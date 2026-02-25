@@ -9,21 +9,26 @@ import { Typography, Box, Button } from '@mui/material';
 import { RecentActivity } from '@/component/recent-activity';
 import { WeeklyUsage } from '@/component/weekly-usage';
 import { RecentActivityTable } from '@/component/recent-activity-table';
-import { useGetMeter } from '@/services/meters';
+import { useGetMeter, useGetMeterStats } from '@/services/meters';
+import { useGetWalletBalance } from '@/services/wallet';
+import { pxToRem } from '@/util/font';
+
 
 export const Dashboard = () => {
   const [buyGasOpen, setBuyGasOpen] = useState(false);
 
   const { data: meter } = useGetMeter()
+  const { data: walletBalance } = useGetWalletBalance()
 
-  console.log('Single meter', meter)
+  const { data: meterStats } = useGetMeterStats()
+
 
   const Stats = [
     {
       title: 'remaining kg',
       value: meter?.availableGasKg
         ? Number(meter.availableGasKg).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 3 })
-        : '0.00',
+        : '0.00' + 'kg',
       leftComponent: (
         <Box
           display='flex'
@@ -47,7 +52,7 @@ export const Dashboard = () => {
     },
     {
       title: 'kg used today',
-      value: '3.2 kg',
+      value: `${meterStats?.usedToday} kg`,
       below: 'View Usage',
       leftComponent: (
         <Box
@@ -72,7 +77,7 @@ export const Dashboard = () => {
     },
     {
       title: 'wallet balance',
-      value: '₦12,000.44 ',
+      value: `₦${walletBalance?.balance}`,
       below: 'view wallet',
     },
   ];
@@ -84,9 +89,10 @@ export const Dashboard = () => {
       <Box
         display='flex'
         flexDirection={{ xs: 'column', md: 'row' }}
-        alignItems={{ xs: 'stretch', md: 'center' }}
+        alignItems={{ xs: 'stretch', md: 'flex-start' }}
         gap={1}
         justifyContent='space-between'
+        mt={2}
       >
         {Stats.map((item) => (
           <Box
@@ -140,13 +146,21 @@ export const Dashboard = () => {
           <RecentActivity />
         </Box>
       </Box>
-      <RecentActivityTable />
-      <Box display='flex' alignItems='center' justifyContent='flex-end' mt={2}>
-        <Button sx={{
-          alignItems: 'flex-end',
-        }} variant='contained' endIcon={<img src={upIcon} />}>
-          View all transactions
-        </Button>
+      <Box bgcolor='white' borderRadius={2} p={2}>
+        <Box>
+          <Box>
+            <Typography fontSize={pxToRem(16)} fontWeight='bold'>Transactions</Typography>
+            <Typography mb={3} fontSize={pxToRem(14)} textTransform='capitalize' color='#424242'>view all your transactions</Typography>
+          </Box>
+        </Box>
+        <RecentActivityTable />
+        <Box display='flex' alignItems='center' justifyContent='flex-end' mt={2}>
+          <Button sx={{
+            alignItems: 'flex-end',
+          }} variant='contained' endIcon={<img src={upIcon} />}>
+            View all transactions
+          </Button>
+        </Box>
       </Box>
     </>
   );

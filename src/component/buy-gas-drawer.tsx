@@ -24,6 +24,7 @@ import { CircularProgress } from '@mui/material';
 
 import globeIcon from '@/assets/globe.svg'
 import walletIcon from '@/assets/wallet.svg'
+import { useGetPricePerKg } from '@/services/settings';
 
 const buyGasSchema = z.object({
   meter: z.string().min(1, 'Please select a meter'),
@@ -42,7 +43,7 @@ interface BuyGasDrawerProps {
 }
 
 export const BuyGasDrawer = ({ open, onClose }: BuyGasDrawerProps) => {
-  const [kgEstimate, setKgEstimate] = useState('0');
+  const [amountInput, setAmountInput] = useState('');
   const { data: meters = [], isLoading: metersLoading } = useGetMeters();
   const { mutate: initializePurchase, isPending } = useInitializeGasPurchase();
   const {
@@ -60,11 +61,13 @@ export const BuyGasDrawer = ({ open, onClose }: BuyGasDrawerProps) => {
     },
   });
 
-  const handleAmountChange = (value: string) => {
-    const num = Number(value);
-    // Rough estimate: ₦1,000 per kg (placeholder conversion)
-    setKgEstimate(num > 0 ? (num / 1000).toFixed(1) : '0');
-  };
+  const { data: priceData } = useGetPricePerKg();
+  const pricePerKg = Number(priceData?.gasPricePerKg ?? 0);
+  const kgEstimate = (() => {
+    const amount = Number(amountInput);
+    if (!amount || amount <= 0 || !pricePerKg || pricePerKg <= 0) return '0';
+    return (amount / pricePerKg).toFixed(0);
+  })();
 
   const onSubmit = (data: BuyGasFormData) => {
     initializePurchase(
@@ -184,7 +187,7 @@ export const BuyGasDrawer = ({ open, onClose }: BuyGasDrawerProps) => {
                 variant='standard'
                 type='number'
                 {...register('amount', {
-                  onChange: (e) => handleAmountChange(e.target.value),
+                  onChange: (e) => setAmountInput(e.target.value),
                 })}
                 slotProps={{
                   input: { disableUnderline: true },
@@ -200,7 +203,8 @@ export const BuyGasDrawer = ({ open, onClose }: BuyGasDrawerProps) => {
               <Box
                 bgcolor='#6699001A'
                 borderRadius='50%'
-                width={28}
+                width='fit-content'
+                p={1}
                 height={28}
                 display='flex'
                 alignItems='center'

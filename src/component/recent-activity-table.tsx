@@ -1,7 +1,9 @@
+import { useMemo, useState } from 'react';
 import { Chip, Link } from '@mui/material';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import { DataTable, type DataTableColumn } from '@/shared/data-table';
 import { useGetTransactions, getKgPurchased, type Transaction } from '@/services/transactions';
+import { TransactionDetailsDrawer } from '@/component/transaction-details-drawer';
 
 const statusConfig: Record<string, { label: string; bg: string; color: string }> = {
   SUCCESS: {
@@ -45,7 +47,9 @@ const formatType = (type: string) => {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 };
 
-const columns: DataTableColumn<Transaction>[] = [
+const getColumns = (
+  onView: (transaction: Transaction) => void,
+): DataTableColumn<Transaction>[] => [
   {
     key: 'timestamp',
     header: 'Timestamp',
@@ -98,9 +102,13 @@ const columns: DataTableColumn<Transaction>[] = [
     key: 'action',
     header: 'Action',
     skeletonWidth: 60,
-    render: () => (
+    render: (row) => (
       <Link
         href='#'
+        onClick={(e) => {
+          e.preventDefault();
+          onView(row);
+        }}
         underline='none'
         sx={{
           color: '#6A9A00',
@@ -117,17 +125,36 @@ const columns: DataTableColumn<Transaction>[] = [
 ];
 
 export const RecentActivityTable = () => {
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(
+    null,
+  );
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const { data, isLoading } = useGetTransactions({ page: 1, limit: 6 });
+  const columns = useMemo(
+    () =>
+      getColumns((transaction) => {
+        setSelectedTransaction(transaction);
+        setDetailsOpen(true);
+      }),
+    [],
+  );
 
 
   return (
-    <DataTable
-      columns={columns}
-      rows={data?.transactions ?? []}
-      loading={isLoading}
-      skeletonRows={6}
-      getRowKey={(row) => row.id}
-      emptyMessage='No transactions yet'
-    />
+    <>
+      <DataTable
+        columns={columns}
+        rows={data?.transactions ?? []}
+        loading={isLoading}
+        skeletonRows={6}
+        getRowKey={(row) => row.id}
+        emptyMessage='No transactions yet'
+      />
+      <TransactionDetailsDrawer
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        transaction={selectedTransaction}
+      />
+    </>
   );
 };

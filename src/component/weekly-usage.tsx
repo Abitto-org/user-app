@@ -3,6 +3,7 @@ import {
   Line,
   Area,
   AreaChart,
+  Tooltip,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -10,18 +11,24 @@ import {
 } from 'recharts';
 
 import upIcon from '@/assets/icons/up-icon.svg';
+import { useGetMeterStats } from '@/services/meters';
 
-const data = [
-  { day: 'Mon', units: 0.5 },
-  { day: 'Tue', units: 2.0 },
-  { day: 'Wed', units: 4.0 },
-  { day: 'Thur', units: 2.0 },
-  { day: 'Fri', units: 5.8 },
-  { day: 'Sat', units: 4.2 },
-  { day: 'Sun', units: 8.0 },
-];
+const dayName = (dateStr: string) =>
+  new Date(dateStr).toLocaleDateString('en-NG', { weekday: 'short' });
+
+const formatUnits = (value: number | undefined) =>
+  `${(value ?? 0).toLocaleString('en-NG', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 3,
+  })} kg`;
 
 export const WeeklyUsage = () => {
+  const { data: meterStats } = useGetMeterStats();
+  const chartData =
+    meterStats?.weeklyGraphData?.map((item) => ({
+      day: dayName(item.date),
+      units: item.total,
+    })) ?? [];
   return (
     <Box
       bgcolor='white'
@@ -51,7 +58,11 @@ export const WeeklyUsage = () => {
           <Stack direction='row' alignItems='center' gap={0.5} mt={0.5}>
             <img src={upIcon} alt='up' />
             <Typography variant='body2' color='text.secondary'>
-              12% VS Last Week
+              {(meterStats?.weeklyChangePercentage ?? 0).toLocaleString('en-NG', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2,
+              })}
+              % VS Last Week
             </Typography>
           </Stack>
         </Box>
@@ -62,7 +73,7 @@ export const WeeklyUsage = () => {
               color='text.secondary'
               textAlign='right'
             >
-              33.5 Units
+              {formatUnits(meterStats?.usedThisWeek)}
             </Typography>
             <Typography
               variant='caption'
@@ -79,7 +90,7 @@ export const WeeklyUsage = () => {
               color='text.secondary'
               textAlign='right'
             >
-              4.5 Units
+              {formatUnits(meterStats?.usedToday)}
             </Typography>
             <Typography
               variant='caption'
@@ -95,7 +106,7 @@ export const WeeklyUsage = () => {
       <Box width='100%' flex={1} height={250} mt={2}>
         <ResponsiveContainer width='100%' height={250}>
           <AreaChart
-            data={data}
+            data={chartData}
             margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
           >
             <defs>
@@ -120,9 +131,22 @@ export const WeeklyUsage = () => {
               axisLine={false}
               tickLine={false}
               tick={{ fill: '#666', fontSize: 12 }}
-              domain={[0, 8]}
-              ticks={[0, 2, 4, 6, 8]}
               width={40}
+            />
+            <Tooltip
+              formatter={(value: number | string | undefined) => [
+                `${Number(value ?? 0).toLocaleString('en-NG', {
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 3,
+                })} Units`,
+                'Usage',
+              ]}
+              labelFormatter={(label) => `Day: ${label}`}
+              contentStyle={{
+                borderRadius: '10px',
+                border: '1px solid #E4E7EC',
+                boxShadow: '0 6px 18px rgba(0,0,0,0.08)',
+              }}
             />
             <Area
               type='monotone'

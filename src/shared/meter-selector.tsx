@@ -41,7 +41,7 @@ export const MeterSelector = () => {
         py={0.75}
         sx={{ cursor: 'pointer', userSelect: 'none', width: 'fit-content' }}
       >
-        <Typography fontWeight={600} color='secondary' noWrap>
+        <Typography fontWeight={600} color='primary' noWrap>
           {selectedMeter?.meterNumber ?? 'Select Meter'}
         </Typography>
         <KeyboardArrowDownIcon sx={{ color: '#669900', fontSize: 20 }} />
@@ -53,7 +53,8 @@ export const MeterSelector = () => {
         onClose={() => setAnchorEl(null)}
         slotProps={{
           paper: {
-            sx: { borderRadius: '12px', mt: 1, minWidth: 180 },
+            sx: { borderRadius: '12px', mt: 1, minWidth: 180, border: '1px solid', borderColor: 'primary' },
+            elevation: 0,
           },
         }}
       >
