@@ -17,6 +17,68 @@ export interface Meter {
   updatedAt: string;
 }
 
+export interface MeterEstate {
+  id: string;
+  name: string;
+  description: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode: string;
+  latitude: string;
+  longitude: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MeterUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  username: string | null;
+  phoneNumber: string | null;
+  avatar: string | null;
+  country: string | null;
+  referralCode: string | null;
+  referredBy: string | null;
+  isActive: boolean;
+  isAmbassador: boolean;
+  emailVerified: boolean;
+  emailVerifiedAt: string | null;
+  failedLoginAttempts: number;
+  lockoutUntil: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deleteRequestedAt: string | null;
+  deleteEffectiveAt: string | null;
+  isArchived: boolean;
+  archivedAt: string | null;
+  archiveReason: string | null;
+  pushNotificationEnabled: boolean;
+  emailNotificationEnabled: boolean;
+  telegramNotificationEnabled: boolean;
+  role: string;
+  telegramChatId: string | null;
+  telegramLinkedAt: string | null;
+  adminRoleId: string | null;
+  adminGroupId: string | null;
+  gender: string | null;
+  nin: string | null;
+  estateId: string | null;
+  houseNumber: string | null;
+  onboardingEstateName: string | null;
+  onboardingCompleted: boolean;
+}
+
+export interface MeterDetails {
+  meter: Meter;
+  estate: MeterEstate;
+  user: MeterUser;
+}
+
 interface MetersResponse {
   status: string;
   message: string;
@@ -40,7 +102,7 @@ export const useGetMeters = () => {
 interface SingleMeterResponse {
   status: string;
   message: string;
-  data: Meter;
+  data: MeterDetails;
 }
 
 /**
@@ -51,7 +113,7 @@ export const useGetMeter = (id?: string) => {
   const urlMeterId = useMeterId();
   const meterId = id ?? urlMeterId;
 
-  return useQuery<Meter>({
+  return useQuery<MeterDetails>({
     queryKey: ['meter', meterId],
     queryFn: async () => {
       const { data } = await http.get<SingleMeterResponse>(

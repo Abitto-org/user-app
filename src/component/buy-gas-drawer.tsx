@@ -1,17 +1,16 @@
 import { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
+  Autocomplete,
   Box,
   Button,
   Drawer,
   IconButton,
-  MenuItem,
   Radio,
   RadioGroup,
   FormControlLabel,
-  Select,
   TextField,
   Typography,
   FormHelperText,
@@ -25,7 +24,6 @@ import { CircularProgress } from '@mui/material';
 import globeIcon from '@/assets/globe.svg'
 import walletIcon from '@/assets/wallet.svg'
 import { useGetPricePerKg } from '@/services/settings';
-import { useMeterId } from '@/hooks/use-meter-id';
 
 const buyGasSchema = z.object({
   meter: z.string().min(1, 'Please select a meter'),
@@ -61,11 +59,9 @@ export const BuyGasDrawer = ({ open, onClose }: BuyGasDrawerProps) => {
       paymentMethod: '' as unknown as 'wallet' | 'online',
     },
   });
-
-  const meterId = useMeterId()
-  const { data: singleMeter } = useGetMeter(meterId!)
-
-  console.log('Single meter', singleMeter)
+  const selectedMeterId = useWatch({ control, name: 'meter' });
+  const { data: selectedMeterDetails, isLoading: meterDetailsLoading, isError: meterDetailsError } =
+    useGetMeter(selectedMeterId || undefined);
 
   const { data: priceData } = useGetPricePerKg();
   const pricePerKg = Number(priceData?.gasPricePerKg ?? 0);
@@ -142,32 +138,52 @@ export const BuyGasDrawer = ({ open, onClose }: BuyGasDrawerProps) => {
             name='meter'
             control={control}
             render={({ field }) => (
-              <Select
-                fullWidth
-                {...field}
-                displayEmpty
-                error={!!errors.meter}
-                sx={{ borderRadius: '12px', mb: 0.5 }}
-                renderValue={(value) => {
-                  if (!value) {
-                    return <span style={{ color: '#aaa' }}>Select Meter</span>;
-                  }
-                  const meter = meters.find((m) => m.id === value);
-                  return meter?.meterNumber ?? value;
+              <Autocomplete
+                freeSolo
+                options={meters.map((meter) => meter.id)}
+                value={field.value || null}
+                onChange={(_, newValue) => {
+                  field.onChange(typeof newValue === 'string' ? newValue : '');
                 }}
-              >
-                {metersLoading && (
-                  <MenuItem disabled>Loading meters...</MenuItem>
+                inputValue={
+                  field.value
+                    ? meters.find((m) => m.id === field.value)?.meterNumber ?? field.value
+                    : ''
+                }
+                onInputChange={(_, newInputValue, reason) => {
+                  if (reason === 'input' || reason === 'clear') {
+                    field.onChange(newInputValue);
+                  }
+                }}
+                getOptionLabel={(option) =>
+                  meters.find((m) => m.id === option)?.meterNumber ?? option
+                }
+                filterOptions={(options, state) => {
+                  const q = state.inputValue.trim().toLowerCase();
+                  if (!q) return options;
+                  return options.filter((id) => {
+                    const meter = meters.find((m) => m.id === id);
+                    return (
+                      id.toLowerCase().includes(q) ||
+                      (meter?.meterNumber ?? '').toLowerCase().includes(q)
+                    );
+                  });
+                }}
+                loading={metersLoading}
+                noOptionsText={metersLoading ? 'Loading meters...' : 'No meters found'}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    fullWidth
+                    placeholder='Select meter or type meter ID/number'
+                    error={!!errors.meter}
+                    sx={{
+                      mb: 0.5,
+                      '& .MuiOutlinedInput-root': { borderRadius: '12px' },
+                    }}
+                  />
                 )}
-                {!metersLoading && meters.length === 0 && (
-                  <MenuItem disabled>No meters found</MenuItem>
-                )}
-                {meters.map((meter) => (
-                  <MenuItem key={meter.id} value={meter.id}>
-                    {meter.meterNumber}
-                  </MenuItem>
-                ))}
-              </Select>
+              />
             )}
           />
           {errors.meter && (
@@ -175,6 +191,59 @@ export const BuyGasDrawer = ({ open, onClose }: BuyGasDrawerProps) => {
               {errors.meter.message}
             </FormHelperText>
           )}
+          {selectedMeterId && (
+            <Box
+              mt={1}
+              mb={1}
+              px={1.5}
+              py={1.25}
+              border='1px solid #EAECF0'
+              borderRadius='10px'
+              bgcolor='#FCFCFD'
+            >
+              {meterDetailsLoading ? (
+                <Typography variant='caption' color='text.secondary'>
+                  Loading meter details...
+                </Typography>
+              ) : meterDetailsError || !selectedMeterDetails ? (
+                <Typography variant='caption' color='text.secondary'>
+                  Unable to fetch meter details for this meter.
+                </Typography>
+              ) : (
+                <>
+                  <Typography variant='caption' color='#667085' display='block' mb={0.5}>
+                    Owner:{' '}
+                    <Typography
+                      component='span'
+                      variant='caption'
+                      fontWeight={700}
+                      color='#344054'
+                    >
+                      {`${selectedMeterDetails?.user?.firstName ?? ''} ${selectedMeterDetails?.user?.lastName ?? ''
+                        }`.trim() ||
+                        selectedMeterDetails?.user?.email ||
+                        'N/A'}
+                    </Typography>
+                  </Typography>
+                  <Typography variant='body2' fontWeight={700} color='#1D2939'>
+                    {selectedMeterDetails?.estate?.name || 'Estate not available'}
+                  </Typography>
+                  <Typography variant='caption' color='#667085'>
+                    {[
+                      selectedMeterDetails?.estate?.address,
+                      selectedMeterDetails?.estate?.city,
+                      selectedMeterDetails?.estate?.state,
+                      selectedMeterDetails?.estate?.country,
+                    ]
+                      .filter(Boolean)
+                      .join(', ') || 'Address not available'}
+                  </Typography>
+                </>
+              )}
+            </Box>
+          )}
+
+
 
           {/* Amount */}
           <Typography variant='body1' fontWeight='semibold' mt={2} mb={1}>

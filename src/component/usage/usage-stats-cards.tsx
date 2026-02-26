@@ -13,7 +13,7 @@ export const UsageStatsCards = () => {
   const { data: meter } = useGetMeter();
   const { data: stats } = useGetMeterStats();
 
-  const remaining = Number(meter?.availableGasKg ?? stats?.remainingKg ?? 0);
+  const remaining = Number(meter?.meter?.availableGasKg ?? stats?.remainingKg ?? 0);
   const usedToday = Number(stats?.usedToday ?? 0);
   const usedThisWeek = Number(stats?.usedThisWeek ?? 0);
 

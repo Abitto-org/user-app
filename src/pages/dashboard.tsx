@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DashboardHeader } from '@/shared/dashboard-header';
 import { BuyGasDrawer } from '@/component/buy-gas-drawer';
+import { GiftGasDrawer } from '@/component/gift-gas-drawer';
 
 import onIcon from '@/assets/icons/on-icon.svg';
 import flowIcon from '@/assets/icons/flow-icon.svg';
@@ -13,11 +14,12 @@ import { useGetMeter, useGetMeterStats } from '@/services/meters';
 import { useGetWalletBalance } from '@/services/wallet';
 import { pxToRem } from '@/util/font';
 import { useMeterId } from '@/hooks/use-meter-id';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 export const Dashboard = () => {
   const [buyGasOpen, setBuyGasOpen] = useState(false);
+  const [giftGasOpen, setGiftGasOpen] = useState(false);
   const navigate = useNavigate();
   const meterId = useMeterId();
 
@@ -35,7 +37,7 @@ export const Dashboard = () => {
   const Stats = [
     {
       title: 'remaining kg',
-      value: formatKgValue(meter?.availableGasKg),
+      value: formatKgValue(meter?.meter?.availableGasKg || 0),
       leftComponent: (
         <Box
           display='flex'
@@ -59,8 +61,9 @@ export const Dashboard = () => {
     },
     {
       title: 'kg used today',
-      value: formatKgValue(meterStats?.usedToday),
+      value: formatKgValue(meterStats?.usedToday || 0),
       below: 'View Usage',
+      belowRoute: '/usage',
       leftComponent: (
         <Box
           display='flex'
@@ -84,18 +87,23 @@ export const Dashboard = () => {
     },
     {
       title: 'wallet balance',
-      value: `₦${Number(walletBalance?.balance ?? 0).toLocaleString('en-NG', {
+      value: `₦${Number(walletBalance?.balance || 0).toLocaleString('en-NG', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       })}`,
       below: 'view wallet',
+      belowRoute: '/wallet'
     },
   ];
 
   return (
     <>
-      <DashboardHeader onBuyGas={() => setBuyGasOpen(true)} />
+      <DashboardHeader
+        onBuyGas={() => setBuyGasOpen(true)}
+        onGiftGas={() => setGiftGasOpen(true)}
+      />
       <BuyGasDrawer open={buyGasOpen} onClose={() => setBuyGasOpen(false)} />
+      <GiftGasDrawer open={giftGasOpen} onClose={() => setGiftGasOpen(false)} />
       <Box
         display='flex'
         flexDirection={{ xs: 'column', md: 'row' }}
@@ -137,19 +145,40 @@ export const Dashboard = () => {
               <Typography variant='h5' fontWeight={700} my={1}>
                 {item.value}
               </Typography>
-              <Typography
-                variant='caption'
-                textTransform='capitalize'
-                fontWeight={600}
-                color='text.secondary'
-              >
-                {item.below}
-              </Typography>
+              {item.below ? (
+                item.belowRoute ? (
+                  <Typography
+                    variant='caption'
+                    textTransform='capitalize'
+                    fontWeight={500}
+                    color='primary'
+                    component={Link}
+                    to={item.belowRoute}
+                    sx={{
+                      ':hover': {
+                        textDecoration: 'underline',
+                        color: 'inherit',
+                      },
+                    }}
+                  >
+                    {item.below}
+                  </Typography>
+                ) : (
+                  <Typography
+                    variant='caption'
+                    textTransform='capitalize'
+                    fontWeight={500}
+                    color='text.secondary'
+                  >
+                    {item.below}
+                  </Typography>
+                )
+              ) : null}
             </Box>
             {item.leftComponent}
           </Box>
         ))}
-      </Box>
+      </Box >
 
       <Box
         display='flex'

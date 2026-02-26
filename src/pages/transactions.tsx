@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type UIEventHandler } from 'react';
 import {
+  Skeleton,
   Box,
   Typography,
   TextField,
@@ -9,7 +10,7 @@ import {
   Link,
   Select,
   MenuItem,
-  Pagination,
+  CircularProgress,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -17,7 +18,8 @@ import NorthEastIcon from '@mui/icons-material/NorthEast';
 import { DataTable, type DataTableColumn } from '@/shared/data-table';
 import { TransactionDetailsDrawer } from '@/component/transaction-details-drawer';
 import {
-  useGetTransactions,
+  useGetTransactionsInfinite,
+  useGetTransactionStats,
   getKgPurchased,
   type Transaction,
   type TransactionFilters,
@@ -46,6 +48,10 @@ const formatDate = (dateStr: string) => {
 const formatAmount = (amount: string) => {
   const value = Number(amount) / 100;
   return `₦${value.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
+};
+
+const formatNaira = (value: number | string) => {
+  return `₦${Number(value || 0).toLocaleString('en-NG')}`;
 };
 
 const formatType = (type: string) => {
@@ -140,7 +146,6 @@ const statusOptions = [
 ];
 
 export const Transactions = () => {
-  const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
@@ -151,20 +156,27 @@ export const Transactions = () => {
 
   const filters: TransactionFilters = useMemo(
     () => ({
-      page,
       limit: ITEMS_PER_PAGE,
       ...(statusFilter && { status: statusFilter }),
     }),
-    [page, statusFilter],
+    [statusFilter],
   );
 
-  const { data, isLoading } = useGetTransactions(filters);
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useGetTransactionsInfinite(filters);
+  const { data: stats, isLoading: statsLoading } = useGetTransactionStats();
 
-  const total = data?.total ?? 0;
-  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+  const transactions = useMemo(
+    () => data?.pages.flatMap((entry) => entry.transactions) ?? [],
+    [data?.pages],
+  );
 
   const filtered = useMemo(() => {
-    const transactions = data?.transactions ?? [];
     if (!search.trim()) return transactions;
     const q = search.toLowerCase();
     return transactions.filter(
@@ -174,7 +186,15 @@ export const Transactions = () => {
         formatType(t.type).toLowerCase().includes(q) ||
         formatAmount(t.amount).toLowerCase().includes(q),
     );
-  }, [data?.transactions, search]);
+  }, [transactions, search]);
+
+  const handleScroll: UIEventHandler<HTMLDivElement> = (event) => {
+    const el = event.currentTarget;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    if (distanceFromBottom < 120 && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
   const columns = useMemo(
     () =>
       getColumns((transaction) => {
@@ -209,6 +229,76 @@ export const Transactions = () => {
         >
           Export Report
         </Button>
+      </Box>
+
+      <Box
+        display='grid'
+        gridTemplateColumns={{ xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' }}
+        gap={2}
+        mb={2}
+      >
+        <Box bgcolor='white' border='1px solid #ECECEC' borderRadius='10px' p={2}>
+          <Typography color='text.secondary' fontSize={13} mb={1}>
+            Total Spent
+          </Typography>
+          {statsLoading ? (
+            <>
+              <Skeleton width={130} height={36} />
+              <Skeleton width={110} height={22} />
+            </>
+          ) : (
+            <>
+              <Typography fontWeight={700} fontSize={34 / 16 + 'rem'} lineHeight={1.1}>
+                {formatNaira(stats?.totalSpentAllTime ?? 0)}
+              </Typography>
+              <Typography mt={1} color='#12B76A' fontSize={12} fontWeight={600}>
+                Last 30 Days
+              </Typography>
+            </>
+          )}
+        </Box>
+
+        <Box bgcolor='white' border='1px solid #ECECEC' borderRadius='10px' p={2}>
+          <Typography color='text.secondary' fontSize={13} mb={1}>
+            Total Transactions
+          </Typography>
+          {statsLoading ? (
+            <>
+              <Skeleton width={80} height={36} />
+              <Skeleton width={170} height={22} />
+            </>
+          ) : (
+            <>
+              <Typography fontWeight={700} fontSize={34 / 16 + 'rem'} lineHeight={1.1}>
+                {Number(stats?.totalTransactions ?? 0).toLocaleString('en-NG')}
+              </Typography>
+              <Typography mt={1} color='#344054' fontSize={12} fontWeight={600}>
+                {`${Number(stats?.percentageIncreasePastMonth ?? 0).toLocaleString('en-NG')}% increase in the past month`}
+              </Typography>
+            </>
+          )}
+        </Box>
+
+        <Box bgcolor='white' border='1px solid #ECECEC' borderRadius='10px' p={2}>
+          <Typography color='text.secondary' fontSize={13} mb={1}>
+            Total Gas Purchased
+          </Typography>
+          {statsLoading ? (
+            <>
+              <Skeleton width={120} height={36} />
+              <Skeleton width={110} height={22} />
+            </>
+          ) : (
+            <>
+              <Typography fontWeight={700} fontSize={34 / 16 + 'rem'} lineHeight={1.1}>
+                {`${Number(stats?.totalGasPurchasedKgLast30d ?? 0).toLocaleString('en-NG')}kg`}
+              </Typography>
+              <Typography mt={1} color='#344054' fontSize={12} fontWeight={600}>
+                Last 30 Days
+              </Typography>
+            </>
+          )}
+        </Box>
       </Box>
 
       <Box
@@ -270,7 +360,6 @@ export const Transactions = () => {
               value={statusFilter}
               onChange={(e) => {
                 setStatusFilter(e.target.value);
-                setPage(1);
               }}
               displayEmpty
               sx={{ minWidth: 160, borderRadius: '10px' }}
@@ -288,31 +377,35 @@ export const Transactions = () => {
           View all your transactions
         </Typography>
 
-        <DataTable
-          columns={columns}
-          rows={filtered}
-          loading={isLoading}
-          skeletonRows={ITEMS_PER_PAGE}
-          getRowKey={(row) => row.id}
-          emptyMessage='No transactions found'
-        />
-
-        {totalPages > 1 && (
-          <Box display='flex' justifyContent='flex-end' mt={3}>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={(_, value) => setPage(value)}
-              shape='rounded'
-              color='primary'
-              sx={{
-                '& .MuiPaginationItem-root': {
-                  fontWeight: 500,
-                },
-              }}
-            />
-          </Box>
-        )}
+        <Box
+          onScroll={handleScroll}
+          sx={{
+            maxHeight: { xs: '60vh', md: '65vh' },
+            overflowY: 'auto',
+            pr: 0.5,
+          }}
+        >
+          <DataTable
+            columns={columns}
+            rows={filtered}
+            loading={isLoading}
+            skeletonRows={ITEMS_PER_PAGE}
+            getRowKey={(row) => row.id}
+            emptyMessage='No transactions found'
+          />
+          {isFetchingNextPage && (
+            <Box display='flex' justifyContent='center' py={2}>
+              <CircularProgress size={20} />
+            </Box>
+          )}
+          {!hasNextPage && filtered.length > 0 && (
+            <Box display='flex' justifyContent='center' py={2}>
+              <Typography variant='caption' color='text.secondary'>
+                You have reached the end of your transactions.
+              </Typography>
+            </Box>
+          )}
+        </Box>
       </Box>
       <TransactionDetailsDrawer
         open={detailsOpen}

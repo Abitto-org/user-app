@@ -70,7 +70,7 @@ export const MeterSelector = () => {
         onClose={() => setAnchorEl(null)}
         slotProps={{
           paper: {
-            sx: { borderRadius: '12px', mt: 1, minWidth: 180, border: '0.5px solid', borderColor: 'primary' },
+            sx: { borderRadius: '12px', mt: 1, minWidth: 180, border: '0.5px solid', borderColor: '#659900' },
             elevation: 0,
           },
         }}

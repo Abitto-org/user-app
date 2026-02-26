@@ -29,7 +29,7 @@ export const DashboardProfileHeader = ({
   const fullName = `${firstName} ${lastName}`.trim() || 'User';
   const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'U';
   const username = user?.username ?? '';
-  const meterNumber = data?.meterNumber ?? '';
+  const meterNumber = data?.meter?.meterNumber ?? '';
 
   const handleCopyMeter = async () => {
     if (!meterNumber) return;
@@ -48,7 +48,8 @@ export const DashboardProfileHeader = ({
       justifyContent='space-between'
       width='100%'
       bgcolor='white'
-      p={2}
+      p={1}
+      px={2}
       position='sticky'
       top={0}
       zIndex={10}

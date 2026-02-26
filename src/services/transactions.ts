@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { http } from '@/services/http';
 import { useMeterId } from '@/hooks/use-meter-id';
 
@@ -60,9 +60,27 @@ interface TransactionsResponse {
   message: string;
   data: {
     transactions: Transaction[];
-    total: number;
-    page: number;
-    limit: number;
+    total?: number;
+    page?: number;
+    limit?: number;
+    pagination?: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  };
+}
+
+interface TransactionStatsResponse {
+  status: string;
+  message: string;
+  data: {
+    totalSpentAllTime: string;
+    totalSpentLast30d: string;
+    totalTransactions: number;
+    percentageIncreasePastMonth: number;
+    totalGasPurchasedKgLast30d: string;
   };
 }
 
@@ -75,6 +93,22 @@ export interface TransactionFilters {
   endDate?: string;
   minAmount?: number;
   maxAmount?: number;
+}
+
+export interface TransactionStats {
+  totalSpentAllTime: string;
+  totalSpentLast30d: string;
+  totalTransactions: number;
+  percentageIncreasePastMonth: number;
+  totalGasPurchasedKgLast30d: string;
+}
+
+export interface TransactionsData {
+  transactions: Transaction[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export const useGetTransactions = (filters: TransactionFilters = {}) => {
@@ -90,12 +124,84 @@ export const useGetTransactions = (filters: TransactionFilters = {}) => {
   if (filters.minAmount) params.set('minAmount', String(filters.minAmount));
   if (filters.maxAmount) params.set('maxAmount', String(filters.maxAmount));
 
-  return useQuery<TransactionsResponse['data']>({
+  return useQuery<TransactionsData>({
     queryKey: ['transactions', meterId, filters],
     queryFn: async () => {
       const { data } = await http.get<TransactionsResponse>(
         `/transactions/mine?${params.toString()}`,
       );
+      const payload = data.data;
+      const pagination = payload.pagination;
+      const total = pagination?.total ?? payload.total ?? 0;
+      const page = pagination?.page ?? payload.page ?? 1;
+      const limit = pagination?.limit ?? payload.limit ?? filters.limit ?? 20;
+      const totalPages =
+        pagination?.totalPages ?? Math.max(1, Math.ceil(total / Math.max(limit, 1)));
+
+      return {
+        transactions: payload.transactions ?? [],
+        total,
+        page,
+        limit,
+        totalPages,
+      };
+    },
+    enabled: !!localStorage.getItem('token') && !!meterId,
+  });
+};
+
+export const useGetTransactionsInfinite = (filters: TransactionFilters = {}) => {
+  const meterId = useMeterId();
+
+  const baseLimit = filters.limit ?? 20;
+
+  return useInfiniteQuery<TransactionsData>({
+    queryKey: ['transactions-infinite', meterId, { ...filters, page: undefined }],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
+      const params = new URLSearchParams();
+      params.set('page', String(pageParam));
+      params.set('limit', String(baseLimit));
+      if (filters.status) params.set('status', filters.status);
+      if (filters.type) params.set('type', filters.type);
+      if (filters.startDate) params.set('startDate', filters.startDate);
+      if (filters.endDate) params.set('endDate', filters.endDate);
+      if (filters.minAmount) params.set('minAmount', String(filters.minAmount));
+      if (filters.maxAmount) params.set('maxAmount', String(filters.maxAmount));
+
+      const { data } = await http.get<TransactionsResponse>(
+        `/transactions/mine?${params.toString()}`,
+      );
+
+      const payload = data.data;
+      const pagination = payload.pagination;
+      const total = pagination?.total ?? payload.total ?? 0;
+      const page = pagination?.page ?? Number(pageParam) ?? 1;
+      const limit = pagination?.limit ?? payload.limit ?? baseLimit;
+      const totalPages =
+        pagination?.totalPages ?? Math.max(1, Math.ceil(total / Math.max(limit, 1)));
+
+      return {
+        transactions: payload.transactions ?? [],
+        total,
+        page,
+        limit,
+        totalPages,
+      };
+    },
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+    enabled: !!localStorage.getItem('token') && !!meterId,
+  });
+};
+
+export const useGetTransactionStats = () => {
+  const meterId = useMeterId();
+
+  return useQuery<TransactionStats>({
+    queryKey: ['transactions-stats', meterId],
+    queryFn: async () => {
+      const { data } = await http.get<TransactionStatsResponse>('/transactions/stats');
       return data.data;
     },
     enabled: !!localStorage.getItem('token') && !!meterId,

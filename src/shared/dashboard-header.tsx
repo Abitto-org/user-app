@@ -7,9 +7,10 @@ import { MeterSelector } from '@/shared/meter-selector';
 
 interface DashboardHeaderProps {
   onBuyGas?: () => void;
+  onGiftGas?: () => void;
 }
 
-export const DashboardHeader = ({ onBuyGas }: DashboardHeaderProps) => {
+export const DashboardHeader = ({ onBuyGas, onGiftGas }: DashboardHeaderProps) => {
   const { data: user, isLoading } = useGetProfile();
 
   const firstName = user?.firstName ?? 'there';
@@ -54,6 +55,7 @@ export const DashboardHeader = ({ onBuyGas }: DashboardHeaderProps) => {
               minHeight: 42,
               width: { xs: '100%', sm: 'auto' },
             }}
+            onClick={onGiftGas}
           >
             Gift Gas 🎁
           </Button>
