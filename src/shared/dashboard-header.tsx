@@ -32,7 +32,7 @@ export const DashboardHeader = ({ onBuyGas, onGiftGas }: DashboardHeaderProps) =
           <Typography
             fontWeight={700}
             letterSpacing={0}
-            fontSize={{ xs: pxToRem(30), sm: pxToRem(34), md: pxToRem(36) }}
+            fontSize={{ xs: pxToRem(24), sm: pxToRem(34), md: pxToRem(30) }}
             textTransform='capitalize'
             lineHeight={1.15}
           >

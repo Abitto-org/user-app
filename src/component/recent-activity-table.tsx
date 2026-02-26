@@ -2,7 +2,12 @@ import { useMemo, useState } from 'react';
 import { Chip, Link } from '@mui/material';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
 import { DataTable, type DataTableColumn } from '@/shared/data-table';
-import { useGetTransactions, getKgPurchased, type Transaction } from '@/services/transactions';
+import {
+  useGetTransactions,
+  getKgPurchased,
+  getTransactionDisplayAmount,
+  type Transaction,
+} from '@/services/transactions';
 import { TransactionDetailsDrawer } from '@/component/transaction-details-drawer';
 
 const statusConfig: Record<string, { label: string; bg: string; color: string }> = {
@@ -36,7 +41,7 @@ const formatDate = (dateStr: string) => {
 };
 
 const formatAmount = (amount: string) => {
-  const value = Number(amount) / 100;
+  const value = Number(amount);
   return `₦${value.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
 };
 
@@ -67,7 +72,7 @@ const getColumns = (
     header: 'Amount',
     bold: true,
     skeletonWidth: 110,
-    render: (row) => formatAmount(row.amount),
+    render: (row) => formatAmount(String(getTransactionDisplayAmount(row))),
   },
   {
     key: 'gasUnit',

@@ -1,7 +1,19 @@
-import { Box, Button, Drawer, IconButton, Typography, Chip } from '@mui/material';
-import { Close } from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  Drawer,
+  IconButton,
+  Typography,
+  Chip,
+  Divider,
+} from '@mui/material';
+import { Close, NorthEast, SouthWest } from '@mui/icons-material';
 import upIcon from '@/assets/icons/up-icon.svg';
-import { getKgPurchased, type Transaction } from '@/services/transactions';
+import {
+  getKgPurchased,
+  getTransactionDisplayAmount,
+  type Transaction,
+} from '@/services/transactions';
 import { pxToRem } from '@/util/font';
 
 interface TransactionDetailsDrawerProps {
@@ -10,8 +22,8 @@ interface TransactionDetailsDrawerProps {
   transaction: Transaction | null;
 }
 
-const formatAmount = (amount: string) => {
-  const value = Number(amount) / 100;
+const formatAmount = (amount: number | string) => {
+  const value = Number(amount);
   return `₦${value.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
 };
 
@@ -33,12 +45,92 @@ const formatPurpose = (type: string) =>
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
+const getStatusStyle = (status?: string) => {
+  if (status === 'SUCCESS') return { label: 'Successful', bg: '#ECFDF3', color: '#067647' };
+  if (status === 'FAILED') return { label: 'Failed', bg: '#FEF3F2', color: '#B42318' };
+  return { label: 'Pending', bg: '#FFFAEB', color: '#B54708' };
+};
+
 export const TransactionDetailsDrawer = ({
   open,
   onClose,
   transaction,
 }: TransactionDetailsDrawerProps) => {
   const unitsBought = transaction ? getKgPurchased(transaction.metadata) : null;
+  const transferMeta =
+    transaction?.type === 'GAS_TRANSFER' &&
+    transaction.metadata &&
+    typeof (transaction.metadata as Record<string, unknown>).transferId === 'string'
+      ? (transaction.metadata as {
+          type?: 'incoming' | 'outgoing';
+          transferId: string;
+          senderEmail?: string;
+          recipientEmail?: string;
+          gasPriceAtTime?: number;
+        })
+      : null;
+  const isIncomingTransfer = transferMeta?.type === 'incoming';
+  const directionLabel = transaction
+    ? transaction.type === 'GAS_TRANSFER'
+      ? isIncomingTransfer
+        ? 'Credit'
+        : 'Debit'
+      : 'Debit'
+    : '--';
+  const status = getStatusStyle(transaction?.status);
+  const counterParty =
+    transferMeta?.type === 'incoming'
+      ? transferMeta.senderEmail
+      : transferMeta?.recipientEmail;
+  const directionIcon =
+    transferMeta?.type === 'incoming' ? (
+      <SouthWest sx={{ color: '#067647', fontSize: 18 }} />
+    ) : (
+      <NorthEast sx={{ color: '#B42318', fontSize: 18 }} />
+    );
+
+  const detailRows: Array<{ label: string; value: string }> = [
+    { label: 'Direction', value: directionLabel },
+    {
+      label: 'Amount',
+      value: transaction ? formatAmount(getTransactionDisplayAmount(transaction)) : '--',
+    },
+    {
+      label: 'Purpose',
+      value: transaction ? formatPurpose(transaction.type) : '--',
+    },
+    {
+      label: 'Units',
+      value: unitsBought ? `${Number(unitsBought).toLocaleString('en-NG')} kg` : '--',
+    },
+    {
+      label: 'Timestamp',
+      value: transaction ? formatDate(transaction.createdAt) : '--',
+    },
+    {
+      label: 'Reference',
+      value: transaction?.reference ?? '--',
+    },
+    {
+      label: 'Provider',
+      value: transaction?.provider ?? '--',
+    },
+    {
+      label: transferMeta?.type === 'incoming' ? 'Sender' : 'Recipient',
+      value: counterParty ?? '--',
+    },
+    {
+      label: 'Transfer ID',
+      value: transferMeta?.transferId ?? '--',
+    },
+    {
+      label: 'Gas price at time',
+      value:
+        transferMeta && typeof transferMeta.gasPriceAtTime === 'number'
+          ? formatAmount(transferMeta.gasPriceAtTime)
+          : '--',
+    },
+  ];
 
   return (
     <Drawer
@@ -63,56 +155,62 @@ export const TransactionDetailsDrawer = ({
           </Typography>
         </Box>
 
-        <Box px={3} py={3} display='flex' flexDirection='column' gap={3}>
-          <Box display='flex' justifyContent='space-between' alignItems='center'>
-            <Typography color='#4A4A4A' fontSize={pxToRem(16)}>
-              Type
-            </Typography>
+        <Box px={3} py={3} display='flex' flexDirection='column' gap={2}>
+          <Box
+            p={2}
+            borderRadius='12px'
+            border='1px solid #EAECF0'
+            bgcolor='#FCFCFD'
+            display='flex'
+            alignItems='center'
+            justifyContent='space-between'
+          >
+            <Box display='flex' alignItems='center' gap={1}>
+              {transaction?.type === 'GAS_TRANSFER' ? directionIcon : null}
+              <Typography fontWeight={700}>
+                {transaction?.type === 'GAS_TRANSFER'
+                  ? isIncomingTransfer
+                    ? 'Gas Received'
+                    : 'Gas Sent'
+                  : 'Gas Purchase'}
+              </Typography>
+            </Box>
             <Chip
-              label='Debit'
+              label={status.label}
               sx={{
-                bgcolor: '#FDECEA',
-                color: '#E53935',
-                fontWeight: 600,
+                bgcolor: status.bg,
+                color: status.color,
+                fontWeight: 700,
                 borderRadius: '999px',
               }}
             />
           </Box>
 
-          <Box display='flex' justifyContent='space-between' alignItems='center'>
-            <Typography color='#4A4A4A' fontSize={pxToRem(16)}>
-              Amount
-            </Typography>
-            <Typography fontWeight={700} fontSize={pxToRem(16)}>
-              {transaction ? formatAmount(transaction.amount) : '--'}
-            </Typography>
-          </Box>
-
-          <Box display='flex' justifyContent='space-between' alignItems='center'>
-            <Typography color='#4A4A4A' fontSize={pxToRem(16)}>
-              TimeStamp
-            </Typography>
-            <Typography fontWeight={700} fontSize={pxToRem(16)}>
-              {transaction ? formatDate(transaction.createdAt) : '--'}
-            </Typography>
-          </Box>
-
-          <Box display='flex' justifyContent='space-between' alignItems='center'>
-            <Typography color='#4A4A4A' fontSize={pxToRem(16)}>
-              Purpose
-            </Typography>
-            <Typography fontWeight={700} fontSize={pxToRem(16)}>
-              {transaction ? formatPurpose(transaction.type) : '--'}
-            </Typography>
-          </Box>
-
-          <Box display='flex' justifyContent='space-between' alignItems='center'>
-            <Typography color='#4A4A4A' fontSize={pxToRem(16)}>
-              Units Bought
-            </Typography>
-            <Typography fontWeight={700} fontSize={pxToRem(16)}>
-              {unitsBought ? `${unitsBought}kg` : '--'}
-            </Typography>
+          <Box border='1px solid #EAECF0' borderRadius='12px' p={2}>
+            {detailRows.map((row, index) => (
+              <Box key={row.label}>
+                <Box
+                  display='flex'
+                  justifyContent='space-between'
+                  alignItems='center'
+                  py={1.2}
+                  gap={2}
+                >
+                  <Typography color='#667085' fontSize={pxToRem(14)}>
+                    {row.label}
+                  </Typography>
+                  <Typography
+                    fontWeight={700}
+                    fontSize={pxToRem(14)}
+                    textAlign='right'
+                    sx={{ wordBreak: 'break-word' }}
+                  >
+                    {row.value}
+                  </Typography>
+                </Box>
+                {index < detailRows.length - 1 && <Divider />}
+              </Box>
+            ))}
           </Box>
         </Box>
 

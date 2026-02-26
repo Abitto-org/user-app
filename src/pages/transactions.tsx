@@ -21,6 +21,7 @@ import {
   useGetTransactionsInfinite,
   useGetTransactionStats,
   getKgPurchased,
+  getTransactionDisplayAmount,
   type Transaction,
   type TransactionFilters,
 } from '@/services/transactions';
@@ -46,7 +47,7 @@ const formatDate = (dateStr: string) => {
 };
 
 const formatAmount = (amount: string) => {
-  const value = Number(amount) / 100;
+  const value = Number(amount);
   return `₦${value.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
 };
 
@@ -81,7 +82,7 @@ const getColumns = (
     header: 'Amount',
     bold: true,
     skeletonWidth: 110,
-    render: (row) => formatAmount(row.amount),
+    render: (row) => formatAmount(String(getTransactionDisplayAmount(row))),
   },
   {
     key: 'gasUnit',
@@ -181,10 +182,10 @@ export const Transactions = () => {
     const q = search.toLowerCase();
     return transactions.filter(
       (t) =>
-        t.reference.toLowerCase().includes(q) ||
+        (t.reference ?? '').toLowerCase().includes(q) ||
         t.description.toLowerCase().includes(q) ||
         formatType(t.type).toLowerCase().includes(q) ||
-        formatAmount(t.amount).toLowerCase().includes(q),
+        formatAmount(String(getTransactionDisplayAmount(t))).toLowerCase().includes(q),
     );
   }, [transactions, search]);
 

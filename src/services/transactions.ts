@@ -8,6 +8,16 @@ interface GasPurchaseMetadata {
   gasPricePerKg: string;
 }
 
+interface GasTransferMetadata {
+  type: 'incoming' | 'outgoing';
+  worth: number;
+  amountKg: number;
+  transferId: string;
+  senderEmail?: string;
+  recipientEmail?: string;
+  gasPriceAtTime: number;
+}
+
 interface PaystackWebhookMetadata {
   amount: number;
   status: string;
@@ -22,7 +32,11 @@ interface PaystackWebhookMetadata {
   [key: string]: unknown;
 }
 
-export type TransactionMetadata = GasPurchaseMetadata | PaystackWebhookMetadata;
+export type TransactionMetadata =
+  | GasPurchaseMetadata
+  | PaystackWebhookMetadata
+  | GasTransferMetadata
+  | null;
 
 export interface Transaction {
   id: string;
@@ -31,8 +45,8 @@ export interface Transaction {
   amount: string;
   type: string;
   status: string;
-  reference: string;
-  provider: string;
+  reference: string | null;
+  provider: string | null;
   description: string;
   metadata: TransactionMetadata;
   createdAt: string;
@@ -45,6 +59,13 @@ export interface Transaction {
  *  - Paystack: { metadata: { kgPurchased, ... }, ... }
  */
 export const getKgPurchased = (metadata: TransactionMetadata): string | null => {
+  if (!metadata) return null;
+  if (
+    'amountKg' in metadata &&
+    (typeof metadata.amountKg === 'number' || typeof metadata.amountKg === 'string')
+  ) {
+    return String(metadata.amountKg);
+  }
   if ('kgPurchased' in metadata && typeof metadata.kgPurchased === 'string') {
     return metadata.kgPurchased;
   }
@@ -53,6 +74,19 @@ export const getKgPurchased = (metadata: TransactionMetadata): string | null => 
     if (typeof nested.kgPurchased === 'string') return nested.kgPurchased;
   }
   return null;
+};
+
+export const getTransactionDisplayAmount = (transaction: Transaction): number => {
+  if (
+    transaction.type === 'GAS_TRANSFER' &&
+    transaction.metadata &&
+    'worth' in transaction.metadata &&
+    typeof transaction.metadata.worth === 'number'
+  ) {
+    return transaction.metadata.worth;
+  }
+
+  return Number(transaction.amount ?? 0) / 100;
 };
 
 interface TransactionsResponse {
