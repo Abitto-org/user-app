@@ -8,7 +8,7 @@ import { ArrowBackIosNew } from '@mui/icons-material';
 import { useVerifyOtp, useResendOtp } from '@/services/auth';
 
 const OTP_LENGTH = 6;
-const COUNTDOWN_SECONDS = 150; // 2:30
+const COUNTDOWN_SECONDS = 600; // 2:30
 
 const otpSchema = z.object({
   otp: z
