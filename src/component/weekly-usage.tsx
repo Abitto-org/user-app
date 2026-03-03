@@ -1,4 +1,5 @@
 import { Box, Stack, Typography } from '@mui/material';
+import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import {
   Line,
   Area,
@@ -97,68 +98,86 @@ export const WeeklyUsage = () => {
       </Stack>
 
       <Box width='100%' flex={1} height={250} mt={2}>
-        <ResponsiveContainer width='100%' height={250}>
-          <AreaChart
-            data={chartData}
-            margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+        {chartData.length === 0 ? (
+          <Box
+            height={250}
+            display='flex'
+            alignItems='center'
+            justifyContent='center'
+            flexDirection='column'
+            gap={1}
+            border='1px dashed #EAECF0'
+            borderRadius='12px'
           >
-            <defs>
-              <linearGradient id='colorUnits' x1='0' y1='0' x2='0' y2='1'>
-                <stop offset='5%' stopColor='#669900' stopOpacity={0.3} />
-                <stop offset='95%' stopColor='#669900' stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid
-              strokeDasharray='3 3'
-              stroke='#F0F0F0'
-              vertical={false}
-            />
-            <XAxis
-              dataKey='day'
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: '#666', fontSize: 12 }}
-              interval={0}
-            />
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: '#666', fontSize: 12 }}
-              width={40}
-            />
-            <Tooltip
-              formatter={(value: number | string | undefined) => [
-                `${Number(value ?? 0).toLocaleString('en-NG', {
-                  minimumFractionDigits: 1,
-                  maximumFractionDigits: 3,
-                })} Units`,
-                'Usage',
-              ]}
-              labelFormatter={(label) => `Day: ${label}`}
-              contentStyle={{
-                borderRadius: '12px',
-                border: '1px solid #E4E7EC',
-                boxShadow: '0 6px 18px rgba(0,0,0,0.08)',
-                padding: '8px 10px',
-              }}
-            />
-            <Area
-              type='monotone'
-              dataKey='units'
-              stroke='#669900'
-              strokeWidth={2}
-              fill='url(#colorUnits)'
-            />
-            <Line
-              type='monotone'
-              dataKey='units'
-              stroke='#669900'
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4, fill: '#669900' }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+            <InboxOutlinedIcon sx={{ color: '#98A2B3', fontSize: 28 }} />
+            <Typography color='text.secondary' fontSize={14}>
+              No weekly usage data yet.
+            </Typography>
+          </Box>
+        ) : (
+          <ResponsiveContainer width='100%' height={250}>
+            <AreaChart
+              data={chartData}
+              margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id='colorUnits' x1='0' y1='0' x2='0' y2='1'>
+                  <stop offset='5%' stopColor='#669900' stopOpacity={0.3} />
+                  <stop offset='95%' stopColor='#669900' stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                strokeDasharray='3 3'
+                stroke='#F0F0F0'
+                vertical={false}
+              />
+              <XAxis
+                dataKey='day'
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: '#666', fontSize: 12 }}
+                interval={0}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: '#666', fontSize: 12 }}
+                width={40}
+              />
+              <Tooltip
+                formatter={(value: number | string | undefined) => [
+                  `${Number(value ?? 0).toLocaleString('en-NG', {
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 3,
+                  })} Units`,
+                  'Usage',
+                ]}
+                labelFormatter={(label) => `Day: ${label}`}
+                contentStyle={{
+                  borderRadius: '12px',
+                  border: '1px solid #E4E7EC',
+                  boxShadow: '0 6px 18px rgba(0,0,0,0.08)',
+                  padding: '8px 10px',
+                }}
+              />
+              <Area
+                type='monotone'
+                dataKey='units'
+                stroke='#669900'
+                strokeWidth={2}
+                fill='url(#colorUnits)'
+              />
+              <Line
+                type='monotone'
+                dataKey='units'
+                stroke='#669900'
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, fill: '#669900' }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </Box>
     </Box>
   );

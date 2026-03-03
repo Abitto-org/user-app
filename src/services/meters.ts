@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { http } from '@/services/http';
 import { useMeterId } from '@/hooks/use-meter-id';
 
@@ -123,6 +123,24 @@ export const useGetMeter = (id?: string) => {
     },
     enabled: !!localStorage.getItem('token') && !!meterId,
   });
+};
+
+export const useGetMetersDetails = (ids: string[]) => {
+  const queries = useQueries({
+    queries: ids.map((id) => ({
+      queryKey: ['meter', id],
+      queryFn: async () => {
+        const { data } = await http.get<SingleMeterResponse>(`/meter/details/${id}`);
+        return data.data;
+      },
+      enabled: !!localStorage.getItem('token') && !!id,
+    })),
+  });
+
+  return {
+    data: queries.map((q) => q.data).filter(Boolean) as MeterDetails[],
+    isLoading: queries.some((q) => q.isLoading),
+  };
 };
 
 export interface MeterStats {

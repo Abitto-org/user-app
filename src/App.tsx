@@ -5,6 +5,7 @@ import { Dashboard } from '@/pages/dashboard';
 import { Transactions } from '@/pages/transactions';
 import { Usage } from '@/pages/usage';
 import { Help } from '@/pages/help';
+import { Settings } from '@/pages/settings';
 import { Login } from '@/pages/login';
 import { Register } from '@/pages/register';
 import { VerifyOtp } from '@/pages/verify-otp';
@@ -37,12 +38,14 @@ function App() {
         <Route path="/transactions" element={<MeterRedirect page="transactions" />} />
         <Route path="/usage" element={<MeterRedirect page="usage" />} />
         <Route path="/help" element={<MeterRedirect page="help" />} />
+        <Route path="/settings" element={<MeterRedirect page="settings" />} />
 
         <Route path="/:meterId" element={<DashboardLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="transactions" element={<Transactions />} />
           <Route path="usage" element={<Usage />} />
           <Route path="help" element={<Help />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Route>
 
