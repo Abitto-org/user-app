@@ -3,7 +3,7 @@ import transactionIcon from '@/assets/icons/transaction-icon.svg';
 import usageIcon from '@/assets/icons/usage-icon.svg';
 import walletIcon from '@/assets/icons/wallet-icon.svg';
 import settingsIcon from '@/assets/icons/settings-icon.svg';
-import helpIcon from '@/assets/icons/help-icon.svg';
+// import helpIcon from '@/assets/icons/help-icon.svg';
 import logoutIcon from '@/assets/icons/logout-icon.svg';
 
 import abittoLogo from '@/assets/abitto-logo.png';
@@ -34,11 +34,11 @@ const sideItems = {
     },
   ],
   system: [
-    {
-      icon: helpIcon,
-      title: 'Help Center',
-      page: 'help',
-    },
+    // {
+    //   icon: helpIcon,
+    //   title: 'Help Center',
+    //   page: 'help',
+    // },
     {
       icon: settingsIcon,
       title: 'Settings',
