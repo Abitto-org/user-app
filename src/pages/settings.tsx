@@ -1,4 +1,5 @@
 import { Box, Button, Skeleton, Stack, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
@@ -45,6 +46,7 @@ const ProfileValue = ({
 );
 
 export const Settings = () => {
+  const navigate = useNavigate();
   const { data: user, isLoading: userLoading } = useGetProfile();
   const { data: meters = [], isLoading: metersLoading } = useGetMeters();
   const meterIds = meters.map((m) => m.id);
@@ -170,6 +172,25 @@ export const Settings = () => {
           <ProfileValue label='Phone Number' value={user?.phoneNumber ?? '--'} />
           <ProfileValue label='NIN' value={user?.nin ?? '--'} showEdit={false} />
         </Box>
+      </Box>
+
+      <Box
+        mt={2}
+        display='flex'
+        justifyContent={{ xs: 'center', md: 'flex-end' }}
+      >
+        <Button
+          variant='text'
+          color='error'
+          sx={{ fontWeight: 600 }}
+          onClick={() => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('onboardingCompleted');
+            navigate('/login', { replace: true });
+          }}
+        >
+          Logout
+        </Button>
       </Box>
     </Box>
   );

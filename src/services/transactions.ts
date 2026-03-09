@@ -210,7 +210,14 @@ export const useGetTransactionsInfinite = (filters: TransactionFilters = {}) => 
       const payload = data.data;
       const pagination = payload.pagination;
       const total = pagination?.total ?? payload.total ?? 0;
-      const page = pagination?.page ?? Number(pageParam) ?? 1;
+
+      let page: number;
+      if (pagination?.page !== undefined && pagination.page !== null) {
+        page = pagination.page;
+      } else {
+        const raw = pageParam ?? 1;
+        page = typeof raw === 'number' ? raw : Number(raw);
+      }
       const limit = pagination?.limit ?? payload.limit ?? baseLimit;
       const totalPages =
         pagination?.totalPages ?? Math.max(1, Math.ceil(total / Math.max(limit, 1)));

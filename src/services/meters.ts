@@ -1,4 +1,5 @@
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSnackbar } from 'notistack';
 import { http } from '@/services/http';
 import { useMeterId } from '@/hooks/use-meter-id';
 
@@ -141,6 +142,44 @@ export const useGetMetersDetails = (ids: string[]) => {
     data: queries.map((q) => q.data).filter(Boolean) as MeterDetails[],
     isLoading: queries.some((q) => q.isLoading),
   };
+};
+
+interface LinkMeterPayload {
+  meterNumber: string;
+  estateId: string;
+  houseNumber: string;
+}
+
+interface LinkMeterResponse {
+  status: string;
+  message: string;
+}
+
+export const useLinkMeter = () => {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+
+  return useMutation<LinkMeterResponse, import('axios').AxiosError<{ message?: string }>, LinkMeterPayload>({
+    mutationFn: async ({ meterNumber, estateId, houseNumber }) => {
+      const { data } = await http.post<LinkMeterResponse>(
+        `/meter/link/${encodeURIComponent(meterNumber)}`,
+        { estateId, houseNumber },
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      enqueueSnackbar(data.message || 'Meter link request sent successfully', {
+        variant: 'success',
+      });
+      queryClient.invalidateQueries({ queryKey: ['meters'] });
+    },
+    onError: (error) => {
+      const apiMessage = error.response?.data?.message;
+      enqueueSnackbar(apiMessage || 'Failed to link meter', {
+        variant: 'error',
+      });
+    },
+  });
 };
 
 export interface MeterStats {

@@ -8,6 +8,7 @@ import { Help } from '@/pages/help';
 import { Settings } from '@/pages/settings';
 import { Login } from '@/pages/login';
 import { Register } from '@/pages/register';
+import { ForgotPassword } from '@/pages/forgot-password';
 import { VerifyOtp } from '@/pages/verify-otp';
 import { Onboarding } from '@/pages/onboarding';
 import { OnboardingSuccess } from '@/pages/onboarding-success';
@@ -20,6 +21,7 @@ function App() {
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
       </Route>
 

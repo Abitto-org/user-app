@@ -65,79 +65,79 @@ const formatType = (type: string) => {
 const getColumns = (
   onView: (transaction: Transaction) => void,
 ): DataTableColumn<Transaction>[] => [
-  {
-    key: 'timestamp',
-    header: 'Timestamp',
-    skeletonWidth: 140,
-    render: (row) => formatDate(row.createdAt),
-  },
-  {
-    key: 'type',
-    header: 'Type',
-    skeletonWidth: 100,
-    render: (row) => formatType(row.type),
-  },
-  {
-    key: 'amount',
-    header: 'Amount',
-    bold: true,
-    skeletonWidth: 110,
-    render: (row) => formatAmount(String(getTransactionDisplayAmount(row))),
-  },
-  {
-    key: 'gasUnit',
-    header: 'Gas Unit',
-    skeletonWidth: 50,
-    render: (row) => {
-      const kg = getKgPurchased(row.metadata);
-      return kg ? `${kg} kg` : '—';
+    {
+      key: 'timestamp',
+      header: 'Timestamp',
+      skeletonWidth: 140,
+      render: (row) => formatDate(row.createdAt),
     },
-  },
-  {
-    key: 'status',
-    header: 'Status',
-    skeletonWidth: 90,
-    render: (row) => {
-      const config = statusConfig[row.status] ?? statusConfig.PENDING;
-      return (
-        <Chip
-          label={config.label}
-          sx={{
-            bgcolor: config.bg,
-            color: config.color,
-            fontWeight: 500,
-            borderRadius: '999px',
-            height: 28,
+    {
+      key: 'type',
+      header: 'Type',
+      skeletonWidth: 100,
+      render: (row) => formatType(row.type),
+    },
+    {
+      key: 'amount',
+      header: 'Amount',
+      bold: true,
+      skeletonWidth: 110,
+      render: (row) => formatAmount(String(getTransactionDisplayAmount(row))),
+    },
+    {
+      key: 'gasUnit',
+      header: 'Gas Unit',
+      skeletonWidth: 50,
+      render: (row) => {
+        const kg = getKgPurchased(row.metadata);
+        return kg ? `${kg} kg` : '—';
+      },
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      skeletonWidth: 90,
+      render: (row) => {
+        const config = statusConfig[row.status] ?? statusConfig.PENDING;
+        return (
+          <Chip
+            label={config.label}
+            sx={{
+              bgcolor: config.bg,
+              color: config.color,
+              fontWeight: 500,
+              borderRadius: '999px',
+              height: 28,
+            }}
+          />
+        );
+      },
+    },
+    {
+      key: 'action',
+      header: 'Action',
+      skeletonWidth: 60,
+      render: (row) => (
+        <Link
+          href='#'
+          onClick={(e) => {
+            e.preventDefault();
+            onView(row);
           }}
-        />
-      );
+          underline='none'
+          sx={{
+            color: '#6A9A00',
+            fontWeight: 500,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 0.5,
+          }}
+        >
+          View <NorthEastIcon sx={{ fontSize: 16 }} />
+        </Link>
+      ),
     },
-  },
-  {
-    key: 'action',
-    header: 'Action',
-    skeletonWidth: 60,
-    render: (row) => (
-      <Link
-        href='#'
-        onClick={(e) => {
-          e.preventDefault();
-          onView(row);
-        }}
-        underline='none'
-        sx={{
-          color: '#6A9A00',
-          fontWeight: 500,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 0.5,
-        }}
-      >
-        View <NorthEastIcon sx={{ fontSize: 16 }} />
-      </Link>
-    ),
-  },
-];
+  ];
 
 const statusOptions = [
   { value: '', label: 'All Statuses' },
@@ -250,7 +250,8 @@ export const Transactions = () => {
           ) : (
             <>
               <Typography fontWeight={700} fontSize={34 / 16 + 'rem'} lineHeight={1.1}>
-                {formatNaira(stats?.totalSpentAllTime ?? 0)}
+                {formatNaira(stats?.totalSpentAllTime ?? 0)
+                }
               </Typography>
               <Typography mt={1} color='#12B76A' fontSize={12} fontWeight={600}>
                 Last 30 Days

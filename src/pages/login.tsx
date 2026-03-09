@@ -63,15 +63,25 @@ export const Login = () => {
         >
           Log in to your account
         </Typography>
-        <Typography variant='body1' color='text.secondary'>
-          Don't have an account?{' '}
-          <Link
-            to='/register'
-            style={{ color: '#669900', fontWeight: 600, textDecoration: 'none' }}
-          >
-            Sign Up
-          </Link>
-        </Typography>
+        <Box display='flex' flexDirection='column' gap={0.5}>
+          <Typography variant='body1' color='text.secondary'>
+            Don't have an account?{' '}
+            <Link
+              to='/register'
+              style={{ color: '#669900', fontWeight: 600, textDecoration: 'none' }}
+            >
+              Sign Up
+            </Link>
+          </Typography>
+          <Typography variant='body2' color='text.secondary'>
+            <Link
+              to='/forgot-password'
+              style={{ color: '#669900', fontWeight: 500, textDecoration: 'none' }}
+            >
+              Forgot your password?
+            </Link>
+          </Typography>
+        </Box>
 
         <Box
           component='form'
